@@ -122,6 +122,7 @@ export function useHomeAssistant(config: HaConfig | null) {
           let state = e.state;
           const attrs = { ...e.attributes };
           if (service === "toggle") state = state === "on" ? "off" : "on";
+          if (state === "on" && !attrs.brightness && "brightness" in attrs) attrs.brightness = 255;
           if (service === "turn_on") state = "on";
           if (service === "turn_off") state = "off";
           if (service === "lock") state = "locked";
