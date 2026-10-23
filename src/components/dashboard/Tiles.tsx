@@ -40,7 +40,7 @@ export function Section({ title, children, className }: { title: string; childre
 
 export function LightTile({ e, call }: { e: HassEntity; call: Call }) {
   const on = e.state === "on";
-  const domain = e.entity_id.split(".")[0];
+  const domain = e.entity_id.split(".")[0] ?? "";
   const pct = e.attributes.brightness != null ? Math.round((e.attributes.brightness / 255) * 100) : on ? 100 : 0;
   const dimmable = domain === "light" && e.attributes.brightness !== undefined;
   const Icon = domain === "light" ? Lightbulb : Power;
@@ -217,7 +217,7 @@ export function CameraTile({ e, src }: { e: HassEntity; src: string | null }) {
 }
 
 export function SecurityRow({ e, call }: { e: HassEntity; call: Call }) {
-  const domain = e.entity_id.split(".")[0];
+  const domain = e.entity_id.split(".")[0] ?? "";
   let Icon = Activity;
   let label = e.state;
   let alert = false;

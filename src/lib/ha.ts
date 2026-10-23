@@ -104,7 +104,7 @@ export function useHomeAssistant(config: HaConfig | null) {
   }, [config?.url, config?.token]);
 
   const callService = useCallback(
-    (domain: string, service: string, data: Record<string, any>) => {
+    (domain: string, service: string, data: any) => {
       const ws = wsRef.current;
       if (status === "connected" && ws?.readyState === WebSocket.OPEN) {
         ws.send(
