@@ -1,29 +1,66 @@
-# Welcome to your Lovable project
+# Home Assistant Dashboard
 
-This project was built with [Lovable](https://lovable.dev).
+Dunkles, edles Dashboard für ein Wand-Tablet im Querformat. Läuft lokal per Docker,
+die Verbindung zu Home Assistant baut der Browser direkt auf (URL + langlebiger
+Zugangs-Token, beides bleibt nur im Browser des Tablets gespeichert).
 
-## Build with Lovable
+## Voraussetzung
 
-Open your project in the [Lovable editor](https://lovable.dev) and keep building.
+- Docker Desktop auf dem MacBook (https://www.docker.com/products/docker-desktop/)
+- Home Assistant im selben Netzwerk
 
-- **Ship faster**: describe what you want to build and Lovable handles the code.
-- **Stay in sync**: connect the project to GitHub and every change made in Lovable is committed straight to your repository.
-- **Full ownership**: this code is yours. Push to your repository and your changes sync back into Lovable, ready for your next prompt.
+## 1. Code aufs MacBook holen
 
-## Development
-
-Prefer working locally? You need Node.js and npm — [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating).
+**Mit GitHub (empfohlen):** Projekt in Lovable mit GitHub verbinden, dann auf dem MacBook:
 
 ```sh
-git clone <this-repository-url>
-cd <repository-name>
-npm i
-npm run dev
+git clone https://github.com/<dein-user>/<dein-repo>.git
+cd <dein-repo>
 ```
 
-## Built with
+**Ohne GitHub:** Im Lovable-Editor den Code als ZIP herunterladen, entpacken und in den
+Ordner wechseln.
 
-- TanStack Start
-- TypeScript
-- React
-- Tailwind CSS
+## 2. Bauen und starten
+
+```sh
+docker compose up -d --build
+```
+
+Das Dashboard läuft danach auf Port 3000.
+
+## 3. Auf dem Tablet öffnen
+
+Mac-IP herausfinden:
+
+```sh
+ipconfig getifaddr en0
+```
+
+Auf dem Tablet `http://<Mac-IP>:3000` öffnen – unbedingt mit `http://`, sonst kann der
+Browser keine Verbindung zum lokalen Home Assistant herstellen.
+
+**Wichtig in Docker Desktop:** Einstellungen → General → „Allow HTTPS-only connections“
+ausschalten, sonst blockiert Docker das Laden über `http://` vom Tablet.
+
+## 4. Mit Home Assistant verbinden
+
+Oben rechts auf das Zahnrad klicken und eintragen:
+
+- **URL:** `http://<HA-IP>:8123`
+- **Token:** in Home Assistant unter Profil → Sicherheit → „Langlebige Zugangs-Token“ erstellen
+
+Ohne gespeicherte Verbindung zeigt das Dashboard Demo-Daten, damit es nie leer aussieht.
+
+## Nützlich
+
+```sh
+docker compose logs -f        # Protokoll ansehen
+docker compose restart        # neu starten
+docker compose down           # stoppen
+```
+
+Damit das Dashboard nach einem Neustart des MacBooks automatisch wieder läuft, in
+Docker Desktop „Start Docker Desktop when you sign in to your computer“ aktivieren
+und den Rechner nicht in den Ruhezustand versetzen (oder die IP im Router fest
+vergeben, damit sich die Adresse des Tablets nicht ändert).
