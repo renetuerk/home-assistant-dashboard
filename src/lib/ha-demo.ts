@@ -48,6 +48,10 @@ const list: HassEntity[] = [
   e("binary_sensor.terrassentuer", "off", { friendly_name: "Terrassentür", device_class: "door" }),
   e("binary_sensor.kuechenfenster", "on", { friendly_name: "Küchenfenster", device_class: "window" }),
   e("binary_sensor.bewegung_flur", "off", { friendly_name: "Bewegung Flur", device_class: "motion" }),
+  e("binary_sensor.rauchmelder_flur", "off", { friendly_name: "Rauchmelder Flur", device_class: "smoke", battery_level: 91 }),
+  e("binary_sensor.rauchmelder_kueche", "off", { friendly_name: "Rauchmelder Küche", device_class: "smoke", battery_level: 84 }),
+  e("binary_sensor.rauchmelder_schlafzimmer", "off", { friendly_name: "Rauchmelder Schlafzimmer", device_class: "smoke", battery_level: 78 }),
+  e("binary_sensor.rauchmelder_gäste_wc", "off", { friendly_name: "Rauchmelder Gäste-WC", device_class: "smoke" }),
   e("alarm_control_panel.alarm", "disarmed", { friendly_name: "Alarmanlage" }),
 ];
 
