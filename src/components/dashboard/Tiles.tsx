@@ -21,6 +21,7 @@ import {
   Moon,
   Wind,
   Video,
+  Siren,
 } from "lucide-react";
 import { Slider } from "@/components/ui/slider";
 import { cn } from "@/lib/utils";
@@ -256,5 +257,25 @@ export function SecurityRow({ e, call }: { e: HassEntity; call: Call }) {
       <span className="flex-1">{name(e)}</span>
       <span className={cn("text-sm", alert ? "text-destructive" : "text-muted-foreground")}>{label}</span>
     </button>
+  );
+}
+
+export function SmokeRow({ e }: { e: HassEntity }) {
+  const alarm = e.state === "on";
+  const batt = e.attributes.battery_level ?? e.attributes.battery;
+  return (
+    <div className={cn("tile flex w-full items-center gap-3 px-4 py-3", alarm && "tile-on border-destructive/40")}>
+      <Siren className={cn("size-5", alarm ? "animate-pulse text-destructive" : "text-success")} />
+      <span className="flex-1">{name(e)}</span>
+      {batt != null && (
+        <span className="flex items-center gap-1 text-xs text-muted-foreground">
+          <BatteryMedium className="size-3.5" />
+          {batt}%
+        </span>
+      )}
+      <span className={cn("text-sm", alarm ? "font-medium text-destructive" : "text-muted-foreground")}>
+        {alarm ? "Alarm!" : "Bereit"}
+      </span>
+    </div>
   );
 }
