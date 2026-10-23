@@ -68,6 +68,7 @@ function Dashboard() {
         ...d("lock"),
         ...d("binary_sensor").filter((e) => ["door", "window", "motion", "garage_door"].includes(e.attributes.device_class)),
       ].slice(0, 10),
+      smoke: d("binary_sensor").filter((e) => e.attributes.device_class === "smoke").slice(0, 12),
     };
   }, [states]);
 
@@ -75,6 +76,7 @@ function Dashboard() {
   const greeting = hour < 11 ? "Guten Morgen" : hour < 18 ? "Guten Tag" : "Guten Abend";
   const lightsOn = g.lights.filter((e) => e.state === "on").length;
   const openSec = g.security.filter((e) => e.state === "on" || e.state === "unlocked").length;
+  const smokeAlarm = g.smoke.filter((e) => e.state === "on").length;
 
   const statusLabel = { demo: "Demo-Modus", connecting: "Verbinde …", connected: "Verbunden", error: error ?? "Fehler" }[status];
 
@@ -90,7 +92,7 @@ function Dashboard() {
             <span className="text-primary">.</span>
           </h1>
           <p className="mt-2 text-muted-foreground">
-            {lightsOn} {lightsOn === 1 ? "Licht ist" : "Lichter sind"} an · {openSec === 0 ? "Alles geschlossen" : `${openSec} offen`}
+            {lightsOn} {lightsOn === 1 ? "Licht ist" : "Lichter sind"} an · {openSec === 0 ? "Alles geschlossen" : `${openSec} offen`} · {smokeAlarm === 0 ? "Rauchmelder bereit" : `Rauchalarm: ${smokeAlarm}`}
           </p>
         </div>
         <div className="flex items-center gap-6">
@@ -152,6 +154,13 @@ function Dashboard() {
             <Section title="Sicherheit">
               <div className="flex flex-col gap-2">
                 {g.security.map((e: HassEntity) => <SecurityRow key={e.entity_id} e={e} call={callService} />)}
+              </div>
+            </Section>
+          )}
+          {g.smoke.length > 0 && (
+            <Section title="Rauchmelder">
+              <div className="flex flex-col gap-2">
+                {g.smoke.map((e: HassEntity) => <SmokeRow key={e.entity_id} e={e} />)}
               </div>
             </Section>
           )}
