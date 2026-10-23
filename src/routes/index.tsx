@@ -10,6 +10,7 @@ import {
   Section,
   SecurityRow,
   SensorChip,
+  SmokeRow,
   WeatherTile,
 } from "@/components/dashboard/Tiles";
 import { SettingsDialog } from "@/components/dashboard/SettingsDialog";
