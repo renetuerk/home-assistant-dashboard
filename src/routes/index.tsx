@@ -53,14 +53,21 @@ function Dashboard() {
     const sensors = d("sensor");
     const byClass = (c: string) => sensors.filter((e) => e.attributes.device_class === c);
     const find = (c: string, re: RegExp) => byClass(c).find((e) => re.test(e.entity_id + (e.attributes.friendly_name ?? "")));
+    const inName = (e: HassEntity, re: RegExp) => re.test(e.entity_id + " " + (e.attributes.friendly_name ?? ""));
+    const isPowerUnit = (e: HassEntity) => ["W", "kW"].includes(String(e.attributes.unit_of_measurement ?? ""));
+    const powerSensors = [...new Map([...byClass("power"), ...sensors.filter(isPowerUnit)].map((e) => [e.entity_id, e])).values()];
+    const pvRe = /pv|solar|photovoltaik|fotovoltaik|balkonkraft|dachkraft|erzeugung|einspeisung|wechselrichter|inverter|fronius|solaredge|huawei|sma\b|growatt|ios/i;
+    const useRe = /haus|verbrauch|house|consumption|netzeinspeisung|bezug|grid|netz/i;
+    const pv = powerSensors.find((e) => inName(e, pvRe)) ?? powerSensors.find((e) => inName(e, useRe) === false && Number(e.state) > 0);
+    const power = powerSensors.find((e) => e !== pv && inName(e, useRe)) ?? powerSensors.find((e) => e !== pv);
     return {
       lights: [...d("light"), ...d("switch")].slice(0, 12),
       climate: d("climate").slice(0, 4),
       sensors: [...byClass("temperature"), ...byClass("humidity")].slice(0, 6),
       weather: d("weather")[0],
-      pv: find("power", /pv|solar/i),
-      power: find("power", /haus|verbrauch|house|consumption|grid|netz/i) ?? byClass("power")[0],
-      today: byClass("energy")[0],
+      pv,
+      power,
+      today: find("energy", /heute|today|tag/i) ?? byClass("energy")[0],
       battery: find("battery", /batterie|battery|speicher|akku/i),
       cameras: d("camera").slice(0, 4),
       security: [
