@@ -161,7 +161,7 @@ export function WeatherTile({ e }: { e: HassEntity }) {
   );
 }
 
-export function EnergyTile({ power, pv, today, battery }: { power?: HassEntity; pv?: HassEntity; today?: HassEntity; battery?: HassEntity }) {
+export function EnergyTile({ power, pv, today, battery }: { power: HassEntity | undefined; pv: HassEntity | undefined; today: HassEntity | undefined; battery: HassEntity | undefined }) {
   const rows = [
     { e: pv, icon: Sun, color: "text-primary" },
     { e: power, icon: Zap, color: "text-cool" },

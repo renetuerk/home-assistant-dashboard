@@ -4,7 +4,7 @@ import { demoStates } from "./ha-demo";
 export type HassEntity = {
   entity_id: string;
   state: string;
-  attributes: Record<string, any>;
+  attributes: any;
   last_changed?: string;
 };
 
