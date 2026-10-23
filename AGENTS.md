@@ -8,3 +8,8 @@
 > Commits you push to the connected branch sync back to Lovable and show up in
 > the editor, so keep the branch in a working state.
 <!-- LOVABLE:END -->
+
+## Architecture
+- The browser talks directly to Home Assistant over its WebSocket API (URL + long-lived token in localStorage); no backend, because HA runs on the user's local network.
+- Without a saved connection the dashboard runs on demo data from src/lib/ha-demo.ts so the design is always previewable.
+- Self-hosting via Docker builds with NITRO_PRESET=node-server (see Dockerfile).
