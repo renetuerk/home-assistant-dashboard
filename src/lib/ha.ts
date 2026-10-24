@@ -8,7 +8,7 @@ export type HassEntity = {
   last_changed?: string;
 };
 
-export type HaConfig = { url: string; token: string };
+export type HaConfig = { url: string; token: string; pvEntity?: string; powerEntity?: string };
 export type ConnStatus = "demo" | "connecting" | "connected" | "error";
 
 const KEY = "ha-dashboard-config";
