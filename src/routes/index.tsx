@@ -4,15 +4,12 @@ import { Settings } from "lucide-react";
 import { cameraUrl, loadConfig, saveConfig, useHomeAssistant, type HaConfig, type HassEntity } from "@/lib/ha";
 import {
   CameraTile,
-  ClimateTile,
   EnergyTile,
-  LightTile,
   Section,
-  SecurityRow,
   SensorChip,
-  SmokeRow,
   WeatherTile,
 } from "@/components/dashboard/Tiles";
+import { ActivityOverview } from "@/components/dashboard/ActivityOverview";
 import { SettingsDialog } from "@/components/dashboard/SettingsDialog";
 import { cn } from "@/lib/utils";
 
@@ -124,18 +121,9 @@ function Dashboard() {
 
       <div className="grid gap-8 lg:grid-cols-12">
         <div className="flex flex-col gap-8 lg:col-span-8">
-          {g.lights.length > 0 && (
-            <Section title="Licht & Schalter">
-              <div className="grid grid-cols-2 gap-4 md:grid-cols-3 xl:grid-cols-4">
-                {g.lights.map((e) => <LightTile key={e.entity_id} e={e} call={callService} />)}
-              </div>
-            </Section>
-          )}
-          {(g.climate.length > 0 || g.sensors.length > 0) && (
-            <Section title="Klima">
-              <div className="grid gap-4 md:grid-cols-2">
-                {g.climate.map((e) => <ClimateTile key={e.entity_id} e={e} call={callService} />)}
-              </div>
+          <ActivityOverview groups={g} call={callService} />
+          {g.sensors.length > 0 && (
+            <Section title="Temperatur & Luftfeuchte">
               <div className="grid gap-3 md:grid-cols-2">
                 {g.sensors.map((e) => <SensorChip key={e.entity_id} e={e} />)}
               </div>
@@ -158,20 +146,6 @@ function Dashboard() {
           {(g.power || g.pv) && (
             <Section title="Energie">
               <EnergyTile power={g.power} pv={g.pv} today={g.today} battery={g.battery} />
-            </Section>
-          )}
-          {g.security.length > 0 && (
-            <Section title="Sicherheit">
-              <div className="flex flex-col gap-2">
-                {g.security.map((e: HassEntity) => <SecurityRow key={e.entity_id} e={e} call={callService} />)}
-              </div>
-            </Section>
-          )}
-          {g.smoke.length > 0 && (
-            <Section title="Rauchmelder">
-              <div className="flex flex-col gap-2">
-                {g.smoke.map((e: HassEntity) => <SmokeRow key={e.entity_id} e={e} />)}
-              </div>
             </Section>
           )}
         </aside>
