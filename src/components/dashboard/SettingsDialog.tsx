@@ -63,8 +63,8 @@ export function SettingsDialog({
               onSave({
                 url: url.trim(),
                 token: token.trim(),
-                pvEntity: pvEntity.trim() || undefined,
-                powerEntity: powerEntity.trim() || undefined,
+                ...(pvEntity.trim() ? { pvEntity: pvEntity.trim() } : {}),
+                ...(powerEntity.trim() ? { powerEntity: powerEntity.trim() } : {}),
               });
               onOpenChange(false);
             }}
