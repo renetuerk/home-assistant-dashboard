@@ -58,7 +58,7 @@ function Dashboard() {
     const powerSensors = [...new Map([...byClass("power"), ...sensors.filter(isPowerUnit)].map((e) => [e.entity_id, e])).values()];
     const pvRe = /pv|solar|photovoltaik|fotovoltaik|balkonkraft|dachkraft|erzeugung|einspeisung|wechselrichter|inverter|fronius|solaredge|huawei|sma\b|growatt|ios/i;
     const useRe = /haus|verbrauch|house|consumption|netzeinspeisung|bezug|grid|netz/i;
-    const pv = powerSensors.find((e) => inName(e, pvRe)) ?? powerSensors.find((e) => inName(e, useRe) === false && Number(e.state) > 0);
+    const pv = powerSensors.find((e) => inName(e, pvRe) && !inName(e, useRe));
     const power = powerSensors.find((e) => e !== pv && inName(e, useRe)) ?? powerSensors.find((e) => e !== pv);
     return {
       lights: [...d("light"), ...d("switch")].slice(0, 12),
