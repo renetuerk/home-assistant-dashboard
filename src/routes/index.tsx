@@ -58,8 +58,11 @@ function Dashboard() {
     const powerSensors = [...new Map([...byClass("power"), ...sensors.filter(isPowerUnit)].map((e) => [e.entity_id, e])).values()];
     const pvRe = /pv|solar|photovoltaik|fotovoltaik|balkonkraft|dachkraft|erzeugung|einspeisung|wechselrichter|inverter|fronius|solaredge|huawei|sma\b|growatt|ios/i;
     const useRe = /haus|verbrauch|house|consumption|netzeinspeisung|bezug|grid|netz/i;
-    const pv = powerSensors.find((e) => inName(e, pvRe) && !inName(e, useRe));
-    const power = powerSensors.find((e) => e !== pv && inName(e, useRe)) ?? powerSensors.find((e) => e !== pv);
+    const autoPv = powerSensors.find((e) => inName(e, pvRe) && !inName(e, useRe));
+    const autoPower =
+      powerSensors.find((e) => e !== autoPv && inName(e, useRe)) ?? powerSensors.find((e) => e !== autoPv);
+    const pv = (config?.pvEntity ? states[config.pvEntity] : undefined) ?? autoPv;
+    const power = (config?.powerEntity ? states[config.powerEntity] : undefined) ?? autoPower;
     return {
       lights: [...d("light"), ...d("switch")].slice(0, 12),
       climate: d("climate").slice(0, 4),
@@ -77,7 +80,7 @@ function Dashboard() {
       ].slice(0, 10),
       smoke: d("binary_sensor").filter((e) => e.attributes.device_class === "smoke").slice(0, 12),
     };
-  }, [states]);
+  }, [states, config]);
 
   const hour = now?.getHours() ?? 12;
   const greeting = hour < 11 ? "Guten Morgen" : hour < 18 ? "Guten Tag" : "Guten Abend";
