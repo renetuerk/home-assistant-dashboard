@@ -13,3 +13,4 @@
 - The browser talks directly to Home Assistant over its WebSocket API (URL + long-lived token in localStorage); no backend, because HA runs on the user's local network.
 - Without a saved connection the dashboard runs on demo data from src/lib/ha-demo.ts so the design is always previewable.
 - Self-hosting via Docker builds with NITRO_PRESET=node-server (see Dockerfile).
+- Use the shared ha-activity classifier for device activity grouping; continuous numeric readings stay separate because their values do not represent on/off states.
