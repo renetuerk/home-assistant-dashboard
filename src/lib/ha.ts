@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from "react";
-import { demoStates } from "./ha-demo";
+import { demoAreas, demoStates } from "./ha-demo";
 
 export type HassEntity = {
   entity_id: string;
@@ -31,16 +31,31 @@ export function toWsUrl(url: string) {
   return u.replace(/^http/, "ws") + "/api/websocket";
 }
 
+export type HistoryPoint = { t: number; v: number };
+
 export function useHomeAssistant(config: HaConfig | null) {
   const [states, setStates] = useState<Record<string, HassEntity>>(demoStates);
+  const [areas, setAreas] = useState<Record<string, string>>(demoAreas);
   const [status, setStatus] = useState<ConnStatus>("demo");
   const [error, setError] = useState<string | null>(null);
   const wsRef = useRef<WebSocket | null>(null);
   const idRef = useRef(1);
+  const pendingRef = useRef(new Map<number, (r: any) => void>());
+
+  const request = useCallback((msg: object) => {
+    const ws = wsRef.current;
+    if (!ws || ws.readyState !== WebSocket.OPEN) return Promise.reject(new Error("offline"));
+    const id = idRef.current++;
+    return new Promise<any>((resolve) => {
+      pendingRef.current.set(id, resolve);
+      ws.send(JSON.stringify({ id, ...msg }));
+    });
+  }, []);
 
   useEffect(() => {
     if (!config?.url || !config?.token) {
       setStates(demoStates);
+      setAreas(demoAreas);
       setStatus("demo");
       return;
     }
@@ -71,12 +86,25 @@ export function useHomeAssistant(config: HaConfig | null) {
         } else if (msg.type === "auth_ok") {
           setStatus("connected");
           setError(null);
-          send({ id: idRef.current++, type: "get_states" });
+          request({ type: "get_states" }).then((result: HassEntity[]) => {
+            const map: Record<string, HassEntity> = {};
+            for (const e of result ?? []) map[e.entity_id] = e;
+            setStates(map);
+          });
           send({ id: idRef.current++, type: "subscribe_events", event_type: "state_changed" });
-        } else if (msg.type === "result" && Array.isArray(msg.result)) {
-          const map: Record<string, HassEntity> = {};
-          for (const e of msg.result as HassEntity[]) map[e.entity_id] = e;
-          setStates(map);
+          Promise.all([
+            request({ type: "config/area_registry/list" }),
+            request({ type: "config/device_registry/list" }),
+            request({ type: "config/entity_registry/list" }),
+          ])
+            .then(([areaList, devices, entities]) => setAreas(buildAreaMap(areaList, devices, entities)))
+            .catch(() => {});
+        } else if (msg.type === "result") {
+          const cb = pendingRef.current.get(msg.id);
+          if (cb) {
+            pendingRef.current.delete(msg.id);
+            cb(msg.success === false ? null : msg.result);
+          }
         } else if (msg.type === "event" && msg.event?.event_type === "state_changed") {
           const { entity_id, new_state } = msg.event.data;
           setStates((s) => {
@@ -101,7 +129,25 @@ export function useHomeAssistant(config: HaConfig | null) {
       clearTimeout(retry);
       wsRef.current?.close();
     };
-  }, [config?.url, config?.token]);
+  }, [config?.url, config?.token, request]);
+
+  const fetchHistory = useCallback(
+    async (entityId: string, hours: number): Promise<HistoryPoint[]> => {
+      if (status !== "connected") return demoHistory(Number(states[entityId]?.state ?? 0), hours);
+      const start = new Date(Date.now() - hours * 3600_000).toISOString();
+      const res = await request({
+        type: "history/history_during_period",
+        start_time: start,
+        entity_ids: [entityId],
+        minimal_response: true,
+        no_attributes: true,
+      });
+      return ((res?.[entityId] ?? []) as { s: string; lu: number }[])
+        .map((p) => ({ t: p.lu * 1000, v: Number(p.s) }))
+        .filter((p) => Number.isFinite(p.v));
+    },
+    [status, request, states],
+  );
 
   const callService = useCallback(
     (domain: string, service: string, data: any) => {
@@ -142,7 +188,32 @@ export function useHomeAssistant(config: HaConfig | null) {
     [status],
   );
 
-  return { states, status, error, callService };
+  return { states, areas, status, error, callService, fetchHistory };
+}
+
+/** Maps entity_id → area name, using the entity's own area or its device's area. */
+export function buildAreaMap(areaList: any[], devices: any[], entities: any[]): Record<string, string> {
+  const areaName = new Map<string, string>((areaList ?? []).map((a) => [a.area_id, a.name]));
+  const deviceArea = new Map<string, string>((devices ?? []).map((d) => [d.id, d.area_id]));
+  const out: Record<string, string> = {};
+  for (const en of entities ?? []) {
+    const id = en.area_id ?? (en.device_id ? deviceArea.get(en.device_id) : undefined);
+    const name = id ? areaName.get(id) : undefined;
+    if (name) out[en.entity_id] = name;
+  }
+  return out;
+}
+
+function demoHistory(current: number, hours: number): HistoryPoint[] {
+  const now = Date.now();
+  const pts: HistoryPoint[] = [];
+  for (let i = hours * 6; i >= 0; i--) {
+    const t = now - i * 600_000;
+    const h = new Date(t).getHours() + new Date(t).getMinutes() / 60;
+    const sun = Math.max(0, Math.sin(((h - 6) / 14) * Math.PI));
+    pts.push({ t, v: Math.round(sun * Math.max(current, 1500) * (0.85 + 0.15 * Math.sin(i))) });
+  }
+  return pts;
 }
 
 export function cameraUrl(config: HaConfig | null, e: HassEntity) {

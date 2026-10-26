@@ -56,3 +56,15 @@ const list: HassEntity[] = [
 ];
 
 export const demoStates: Record<string, HassEntity> = Object.fromEntries(list.map((x) => [x.entity_id, x]));
+
+const roomOf = (id: string) =>
+  /wohnzimmer|esstisch|terrasse/.test(id) ? "Wohnzimmer"
+  : /kueche|kaffee/.test(id) ? "Küche"
+  : /schlafzimmer/.test(id) ? "Schlafzimmer"
+  : /flur|haustuer|eingang|gäste/.test(id) ? "Flur"
+  : /bad/.test(id) ? "Bad"
+  : undefined;
+
+export const demoAreas: Record<string, string> = Object.fromEntries(
+  list.flatMap((x) => (roomOf(x.entity_id) ? [[x.entity_id, roomOf(x.entity_id)!]] : [])),
+);
