@@ -41,6 +41,17 @@ function Dashboard() {
   const [config, setConfig] = useState<HaConfig | null>(null);
   const [open, setOpen] = useState(false);
   useEffect(() => setConfig(loadConfig()), []);
+  useEffect(() => {
+    // Keep the wall tablet screen awake while the dashboard is open.
+    let lock: any = null;
+    const req = async () => {
+      try { lock = await (navigator as any).wakeLock?.request("screen"); } catch { /* unsupported */ }
+    };
+    const onVis = () => { if (document.visibilityState === "visible") req(); };
+    req();
+    document.addEventListener("visibilitychange", onVis);
+    return () => { document.removeEventListener("visibilitychange", onVis); lock?.release?.(); };
+  }, []);
   const { states, status, error, callService } = useHomeAssistant(config);
   const now = useClock();
 
