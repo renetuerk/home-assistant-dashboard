@@ -52,6 +52,37 @@ Oben rechts auf das Zahnrad klicken und eintragen:
 
 Ohne gespeicherte Verbindung zeigt das Dashboard Demo-Daten, damit es nie leer aussieht.
 
+### Energie-Sensoren (optional)
+
+Im selben Fenster gibt es zwei weitere Felder:
+
+- **PV-Sensor (Erzeugung):** Entitäts-ID der aktuellen PV-Leistung, z. B.
+  `sensor.wechselrichter_wirkleistung`
+- **Hausverbrauch-Sensor:** Entitäts-ID des aktuellen Hausverbrauchs, z. B. `sensor.hausverbrauch`
+
+Die ID findest du in Home Assistant unter Einstellungen → Geräte & Dienste → Entitäten.
+Bleiben die Felder leer, sucht das Dashboard selbst nach passenden Sensoren (Leistung in W/kW,
+Namen wie „PV“, „Solar“, „Wechselrichter“ bzw. „Haus“, „Verbrauch“).
+
+## Aufbau des Dashboards
+
+- **Jetzt aktiv:** alles, was gerade eingeschaltet, offen, entriegelt, heizt oder Alarm meldet
+- **Status unbekannt:** Geräte, die Home Assistant gerade nicht erreicht
+- **Inaktiv & ausgeschaltet:** einklappbar, darunter alle ausgeschalteten Geräte
+- **Immer sichtbar:** Temperatur & Luftfeuchte, Kameras, Wetter, Energie
+- Rauchmelder erscheinen automatisch, wenn sie in Home Assistant als „Rauch“ eingestuft sind.
+- Der Bildschirm des Tablets bleibt an, solange das Dashboard geöffnet ist (sofern der Browser das unterstützt).
+
+## Änderungen übernehmen
+
+Nach jeder Änderung in Lovable auf dem MacBook im Projektordner:
+
+```sh
+sh update.sh
+```
+
+(entspricht `git pull` und `docker compose up -d --build`), danach die Seite auf dem Tablet neu laden.
+
 ## Nützlich
 
 ```sh
