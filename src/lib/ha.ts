@@ -40,6 +40,8 @@ export function useHomeAssistant(config: HaConfig | null) {
   const [error, setError] = useState<string | null>(null);
   const wsRef = useRef<WebSocket | null>(null);
   const idRef = useRef(1);
+  const statesRef = useRef(states);
+  statesRef.current = states;
   const pendingRef = useRef(new Map<number, (r: any) => void>());
 
   const request = useCallback((msg: object) => {
@@ -133,7 +135,7 @@ export function useHomeAssistant(config: HaConfig | null) {
 
   const fetchHistory = useCallback(
     async (entityId: string, hours: number): Promise<HistoryPoint[]> => {
-      if (status !== "connected") return demoHistory(Number(states[entityId]?.state ?? 0), hours);
+      if (status !== "connected") return demoHistory(Number(statesRef.current[entityId]?.state ?? 0), hours);
       const start = new Date(Date.now() - hours * 3600_000).toISOString();
       const res = await request({
         type: "history/history_during_period",
@@ -146,7 +148,7 @@ export function useHomeAssistant(config: HaConfig | null) {
         .map((p) => ({ t: p.lu * 1000, v: Number(p.s) }))
         .filter((p) => Number.isFinite(p.v));
     },
-    [status, request, states],
+    [status, request],
   );
 
   const callService = useCallback(
