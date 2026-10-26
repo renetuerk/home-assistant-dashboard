@@ -71,6 +71,10 @@ Namen wie „PV“, „Solar“, „Wechselrichter“ bzw. „Haus“, „Verbra
 - **Inaktiv & ausgeschaltet:** einklappbar, darunter alle ausgeschalteten Geräte
 - **Immer sichtbar:** Temperatur & Luftfeuchte, Kameras, Wetter, Energie
 - Rauchmelder erscheinen automatisch, wenn sie in Home Assistant als „Rauch“ eingestuft sind.
+- **Räume:** oben Knöpfe pro Raum (aus den Bereichen in Home Assistant), um nur einen Raum zu zeigen
+- **PV-Verlauf:** Kurve der PV-Leistung der letzten 12 Stunden unter „Energie“
+- **Rauchalarm:** löst ein Melder aus, wird der ganze Bildschirm rot mit dem Namen des Melders („Gesehen“ blendet aus)
+- **Nachtuhr:** zwischen 22 und 6 Uhr erscheint nach einer Minute ohne Berührung eine gedimmte Uhr; antippen zeigt wieder das Dashboard
 - Der Bildschirm des Tablets bleibt an, solange das Dashboard geöffnet ist (sofern der Browser das unterstützt).
 
 ## Änderungen übernehmen

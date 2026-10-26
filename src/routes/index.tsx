@@ -11,6 +11,8 @@ import {
 } from "@/components/dashboard/Tiles";
 import { ActivityOverview } from "@/components/dashboard/ActivityOverview";
 import { SettingsDialog } from "@/components/dashboard/SettingsDialog";
+import { PvChart } from "@/components/dashboard/PvChart";
+import { NightClock, SmokeAlarmOverlay } from "@/components/dashboard/Overlays";
 import { cn } from "@/lib/utils";
 
 export const Route = createFileRoute("/")({
@@ -52,7 +54,8 @@ function Dashboard() {
     document.addEventListener("visibilitychange", onVis);
     return () => { document.removeEventListener("visibilitychange", onVis); lock?.release?.(); };
   }, []);
-  const { states, status, error, callService } = useHomeAssistant(config);
+  const { states, areas, status, error, callService, fetchHistory } = useHomeAssistant(config);
+  const [room, setRoom] = useState<string | null>(null);
   const now = useClock();
 
   const g = useMemo(() => {
@@ -89,6 +92,15 @@ function Dashboard() {
       smoke: d("binary_sensor").filter((e) => e.attributes.device_class === "smoke").slice(0, 12),
     };
   }, [states, config]);
+
+  const rooms = useMemo(() => {
+    const ids = [...g.lights, ...g.climate, ...g.security, ...g.smoke].map((e) => areas[e.entity_id]).filter(Boolean);
+    return [...new Set(ids)].sort((a, b) => a.localeCompare(b, "de"));
+  }, [g, areas]);
+  const shown = useMemo(() => {
+    const f = (l: HassEntity[]) => (room ? l.filter((e) => areas[e.entity_id] === room) : l);
+    return { lights: f(g.lights), climate: f(g.climate), security: f(g.security), smoke: f(g.smoke) };
+  }, [g, room, areas]);
 
   const hour = now?.getHours() ?? 12;
   const greeting = hour < 11 ? "Guten Morgen" : hour < 18 ? "Guten Tag" : "Guten Abend";
@@ -132,7 +144,24 @@ function Dashboard() {
 
       <div className="grid gap-8 lg:grid-cols-12">
         <div className="flex flex-col gap-8 lg:col-span-8">
-          <ActivityOverview groups={g} call={callService} />
+          {rooms.length > 1 && (
+            <nav aria-label="Räume" className="flex flex-wrap gap-2">
+              {[null, ...rooms].map((r) => (
+                <button
+                  key={r ?? "alle"}
+                  onClick={() => setRoom(r)}
+                  aria-pressed={room === r}
+                  className={cn(
+                    "rounded-full border px-4 py-2 text-sm transition-colors",
+                    room === r ? "border-primary bg-primary text-primary-foreground" : "border-border text-muted-foreground",
+                  )}
+                >
+                  {r ?? "Alle Räume"}
+                </button>
+              ))}
+            </nav>
+          )}
+          <ActivityOverview groups={shown} call={callService} />
           {g.sensors.length > 0 && (
             <Section title="Temperatur & Luftfeuchte">
               <div className="grid gap-3 md:grid-cols-2">
@@ -157,10 +186,13 @@ function Dashboard() {
           {(g.power || g.pv) && (
             <Section title="Energie">
               <EnergyTile power={g.power} pv={g.pv} today={g.today} battery={g.battery} />
+              {g.pv && <PvChart entityId={g.pv.entity_id} load={fetchHistory} />}
             </Section>
           )}
         </aside>
       </div>
+      <SmokeAlarmOverlay alarms={g.smoke.filter((e) => e.state === "on")} />
+      <NightClock now={now} />
       <SettingsDialog
         key={open ? "o" : "c"}
         open={open}
