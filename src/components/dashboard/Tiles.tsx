@@ -22,8 +22,12 @@ import {
   Wind,
   Video,
   Siren,
+  User,
+  UserCheck,
+  Euro,
 } from "lucide-react";
 import { Slider } from "@/components/ui/slider";
+import { energyCost, formatEuro } from "@/lib/energy-costs";
 import { cn } from "@/lib/utils";
 import type { HassEntity } from "@/lib/ha";
 

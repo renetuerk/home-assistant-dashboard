@@ -34,7 +34,11 @@ const list: HassEntity[] = [
   e("sensor.hausverbrauch", "642", { friendly_name: "Hausverbrauch", device_class: "power", unit_of_measurement: "W" }),
   e("sensor.pv_leistung", "1870", { friendly_name: "PV-Leistung", device_class: "power", unit_of_measurement: "W" }),
   e("sensor.energie_heute", "7.4", { friendly_name: "Verbrauch heute", device_class: "energy", unit_of_measurement: "kWh" }),
+  e("sensor.energie_monat", "182.5", { friendly_name: "Verbrauch Monat", device_class: "energy", unit_of_measurement: "kWh" }),
   e("sensor.batterie", "76", { friendly_name: "Hausbatterie", device_class: "battery", unit_of_measurement: "%" }),
+  e("person.rene", "home", { friendly_name: "René" }),
+  e("person.anna", "not_home", { friendly_name: "Anna" }),
+  e("person.ben", "Arbeit", { friendly_name: "Ben" }),
   e("weather.zuhause", "partlycloudy", {
     friendly_name: "Zuhause",
     temperature: 14,
