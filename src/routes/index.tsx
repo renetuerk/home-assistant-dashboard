@@ -48,7 +48,7 @@ function Dashboard() {
   const [style, setStyle] = useState<DashboardStyle>("gold");
   useEffect(() => setStyle(loadDashboardStyle()), []);
   useEffect(() => {
-    document.documentElement.dataset.dashboardStyle = style;
+    document.documentElement.dataset["dashboardStyle"] = style;
   }, [style]);
   useEffect(() => setConfig(loadConfig()), []);
   useEffect(() => {
