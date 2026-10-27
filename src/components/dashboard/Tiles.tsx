@@ -22,8 +22,12 @@ import {
   Wind,
   Video,
   Siren,
+  User,
+  UserCheck,
+  Euro,
 } from "lucide-react";
 import { Slider } from "@/components/ui/slider";
+import { energyCost, formatEuro } from "@/lib/energy-costs";
 import { cn } from "@/lib/utils";
 import type { HassEntity } from "@/lib/ha";
 
@@ -276,6 +280,55 @@ export function SmokeRow({ e }: { e: HassEntity }) {
       <span className={cn("text-sm", alarm ? "font-medium text-destructive" : "text-muted-foreground")}>
         {alarm ? "Alarm!" : "Bereit"}
       </span>
+    </div>
+  );
+}
+
+export function PersonChip({ e }: { e: HassEntity }) {
+  const home = e.state === "home";
+  const label = home ? "Zuhause" : e.state === "not_home" ? "Unterwegs" : e.state;
+  return (
+    <div className={cn("tile flex items-center gap-3 px-4 py-3", home && "tile-on")}>
+      {home ? <UserCheck className="size-4 text-success" /> : <User className="size-4 text-muted-foreground" />}
+      <span className="flex-1 text-sm">{name(e)}</span>
+      <span className={cn("text-sm", home ? "text-success" : "text-muted-foreground")}>{label}</span>
+    </div>
+  );
+}
+
+export function EnergyCostTile({
+  today,
+  month,
+  price,
+}: {
+  today: HassEntity | undefined;
+  month: HassEntity | undefined;
+  price: number;
+}) {
+  const rows = [
+    { label: "Heute", e: today },
+    { label: "Monat", e: month },
+  ].filter((r) => r.e && Number.isFinite(Number(r.e.state)));
+  if (rows.length === 0) return null;
+  return (
+    <div className="tile flex flex-col gap-3 p-5">
+      <div className="flex items-center gap-2 text-sm text-muted-foreground">
+        <Euro className="size-4 text-primary" />
+        Stromkosten · {price.toLocaleString("de-DE", { minimumFractionDigits: 2 })} €/kWh
+      </div>
+      <div className="grid grid-cols-2 gap-3">
+        {rows.map(({ label, e }) => {
+          const kwh = Number(e!.state);
+          return (
+            <div key={label} className="rounded-xl bg-secondary p-3">
+              <div className="text-lg font-medium">{formatEuro(energyCost(kwh, price))}</div>
+              <div className="text-xs text-muted-foreground">
+                {label} · {kwh.toLocaleString("de-DE")} kWh
+              </div>
+            </div>
+          );
+        })}
+      </div>
     </div>
   );
 }

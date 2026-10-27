@@ -4,10 +4,13 @@ import { Settings, MapPin, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { loadDashboardStyle, saveDashboardStyle, type DashboardStyle } from "@/lib/dashboard-appearance";
+import { loadEnergyPrice, saveEnergyPrice } from "@/lib/energy-costs";
 import { cameraUrl, loadConfig, saveConfig, useHomeAssistant, type HaConfig, type HassEntity } from "@/lib/ha";
 import {
   CameraTile,
+  EnergyCostTile,
   EnergyTile,
+  PersonChip,
   Section,
   SensorChip,
   WeatherTile,
@@ -46,7 +49,9 @@ function Dashboard() {
   const [config, setConfig] = useState<HaConfig | null>(null);
   const [open, setOpen] = useState(false);
   const [style, setStyle] = useState<DashboardStyle>("gold");
+  const [price, setPrice] = useState(0.3);
   useEffect(() => setStyle(loadDashboardStyle()), []);
+  useEffect(() => setPrice(loadEnergyPrice()), []);
   useEffect(() => {
     document.documentElement.dataset["dashboardStyle"] = style;
   }, [style]);
@@ -90,7 +95,9 @@ function Dashboard() {
       pv,
       power,
       today: find("energy", /heute|today|tag/i) ?? byClass("energy")[0],
+      month: find("energy", /monat|month/i),
       battery: find("battery", /batterie|battery|speicher|akku/i),
+      persons: d("person").slice(0, 8),
       cameras: d("camera").slice(0, 4),
       security: [
         ...d("alarm_control_panel"),
@@ -182,6 +189,13 @@ function Dashboard() {
           )}
         </div>
         <aside className="flex flex-col gap-8 lg:col-span-4">
+          {g.persons.length > 0 && (
+            <Section title="Anwesenheit">
+              <div className="grid gap-3">
+                {g.persons.map((e) => <PersonChip key={e.entity_id} e={e} />)}
+              </div>
+            </Section>
+          )}
           {g.weather && (
             <Section title="Wetter">
               <WeatherTile e={g.weather} />
@@ -190,6 +204,7 @@ function Dashboard() {
           {(g.power || g.pv) && (
             <Section title="Energie">
               <EnergyTile power={g.power} pv={g.pv} today={g.today} battery={g.battery} />
+              <EnergyCostTile today={g.today} month={g.month} price={price} />
               {g.pv && <PvChart entityId={g.pv.entity_id} load={fetchHistory} />}
             </Section>
           )}
@@ -204,6 +219,8 @@ function Dashboard() {
         config={config}
         style={style}
         onStyleChange={(value) => { setStyle(value); saveDashboardStyle(value); }}
+        price={price}
+        onPriceChange={(value) => { setPrice(value); saveEnergyPrice(value); }}
         onSave={(c) => {
           saveConfig(c);
           setConfig(c);
