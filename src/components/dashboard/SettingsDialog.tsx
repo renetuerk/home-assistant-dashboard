@@ -13,6 +13,8 @@ export function SettingsDialog({
   onSave,
   style,
   onStyleChange,
+  price,
+  onPriceChange,
 }: {
   open: boolean;
   onOpenChange: (o: boolean) => void;
@@ -20,6 +22,8 @@ export function SettingsDialog({
   onSave: (c: HaConfig | null) => void;
   style: DashboardStyle;
   onStyleChange: (style: DashboardStyle) => void;
+  price: number;
+  onPriceChange: (price: number) => void;
 }) {
   const [url, setUrl] = useState(config?.url ?? "http://homeassistant.local:8123");
   const [token, setToken] = useState(config?.token ?? "");
