@@ -71,6 +71,8 @@ Namen wie „PV“, „Solar“, „Wechselrichter“ bzw. „Haus“, „Verbra
 - **Inaktiv & ausgeschaltet:** einklappbar, darunter alle ausgeschalteten Geräte
 - **Immer sichtbar:** Temperatur & Luftfeuchte, Kameras, Wetter, Energie
 - Rauchmelder erscheinen automatisch, wenn sie in Home Assistant als „Rauch“ eingestuft sind.
+- **Anwesenheit:** zeigt pro Person in Home Assistant, ob sie zu Hause oder unterwegs ist (bzw. in welcher Zone).
+- **Stromkosten:** unter „Energie“ die Kosten für heute und den Monat. Grundlage sind die Verbrauchs-Sensoren (kWh) und der Strompreis, den du in den Dashboard-Einstellungen in €/kWh einträgst. Der Preis bleibt auf diesem Gerät gespeichert – unabhängig von der Verbindung. Für den Monat braucht es einen Sensor mit „Monat“ im Namen (z. B. `sensor.energie_monat`).
 - **Räume:** eine kompakte Auswahlliste statt einzelner Knöpfe, auch bei vielen Räumen nur eine Zeile. Die Räume kommen aus den Bereichen in Home Assistant. „Alle Räume“ bzw. das × setzt den Filter zurück. Der Filter betrifft Geräte und Melder; Temperatur, Wetter und Energie bleiben sichtbar.
 - **Stil:** in den Dashboard-Einstellungen zwischen „Dunkel & Gold“, „Graphit & Eis“ und „Dunkel & Salbei“ wechseln. Die Auswahl gilt sofort und bleibt auf diesem Gerät gespeichert – unabhängig von der Verbindung und auch im Demo-Modus.
 - **PV-Verlauf:** Kurve der PV-Leistung der letzten 12 Stunden unter „Energie“

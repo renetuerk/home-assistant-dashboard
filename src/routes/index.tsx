@@ -219,6 +219,8 @@ function Dashboard() {
         config={config}
         style={style}
         onStyleChange={(value) => { setStyle(value); saveDashboardStyle(value); }}
+        price={price}
+        onPriceChange={(value) => { setPrice(value); saveEnergyPrice(value); }}
         onSave={(c) => {
           saveConfig(c);
           setConfig(c);

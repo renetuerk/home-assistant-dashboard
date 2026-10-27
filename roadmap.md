@@ -1,3 +1,5 @@
 - [x] Stilauswahl unabhängig von der Home-Assistant-Verbindung ergänzen.
 - [x] Raumknöpfe durch eine kompakte Auswahl ersetzen.
 - [x] Anleitung aktualisieren und Auswahl im Browser prüfen (Demo; lokales Home Assistant hier nicht erreichbar).
+- [x] Anwesenheit (Personen aus Home Assistant) anzeigen.
+- [x] Stromkosten mit einstellbarem Strompreis unter „Energie“ anzeigen.
