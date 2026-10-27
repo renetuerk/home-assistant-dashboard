@@ -1,0 +1,3 @@
+- [x] Stilauswahl unabhängig von der Home-Assistant-Verbindung ergänzen.
+- [x] Raumknöpfe durch eine kompakte Auswahl ersetzen.
+- [x] Anleitung aktualisieren und Auswahl im Browser prüfen (Demo; lokales Home Assistant hier nicht erreichbar).

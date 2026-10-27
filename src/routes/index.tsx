@@ -1,6 +1,9 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
-import { Settings } from "lucide-react";
+import { Settings, MapPin, X } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { loadDashboardStyle, saveDashboardStyle, type DashboardStyle } from "@/lib/dashboard-appearance";
 import { cameraUrl, loadConfig, saveConfig, useHomeAssistant, type HaConfig, type HassEntity } from "@/lib/ha";
 import {
   CameraTile,
@@ -42,6 +45,11 @@ function useClock() {
 function Dashboard() {
   const [config, setConfig] = useState<HaConfig | null>(null);
   const [open, setOpen] = useState(false);
+  const [style, setStyle] = useState<DashboardStyle>("gold");
+  useEffect(() => setStyle(loadDashboardStyle()), []);
+  useEffect(() => {
+    document.documentElement.dataset["dashboardStyle"] = style;
+  }, [style]);
   useEffect(() => setConfig(loadConfig()), []);
   useEffect(() => {
     // Keep the wall tablet screen awake while the dashboard is open.
@@ -129,7 +137,7 @@ function Dashboard() {
           <span className="font-display text-6xl font-light tabular-nums lg:text-7xl">
             {now?.toLocaleTimeString("de-DE", { hour: "2-digit", minute: "2-digit" }) ?? "--:--"}
           </span>
-          <button onClick={() => setOpen(true)} className="tile flex items-center gap-2 px-4 py-3 text-sm">
+          <Button variant="ghost" onClick={() => setOpen(true)} className="tile flex h-auto items-center gap-2 px-4 py-3 text-sm">
             <span
               className={cn(
                 "size-2 rounded-full",
@@ -138,27 +146,23 @@ function Dashboard() {
             />
             {statusLabel}
             <Settings className="size-4 text-muted-foreground" />
-          </button>
+          </Button>
         </div>
       </header>
 
       <div className="grid gap-8 lg:grid-cols-12">
         <div className="flex flex-col gap-8 lg:col-span-8">
           {rooms.length > 1 && (
-            <nav aria-label="Räume" className="flex flex-wrap gap-2">
-              {([null, ...rooms] as (string | null)[]).map((r) => (
-                <button
-                  key={r ?? "alle"}
-                  onClick={() => setRoom(r)}
-                  aria-pressed={room === r}
-                  className={cn(
-                    "rounded-full border px-4 py-2 text-sm transition-colors",
-                    room === r ? "border-primary bg-primary text-primary-foreground" : "border-border text-muted-foreground",
-                  )}
-                >
-                  {r ?? "Alle Räume"}
-                </button>
-              ))}
+            <nav aria-label="Räume" className="flex min-w-0 items-center gap-3">
+              <MapPin className="size-4 shrink-0 text-primary" />
+              <Select value={room ?? "all"} onValueChange={(value) => setRoom(value === "all" ? null : value)}>
+                <SelectTrigger aria-label="Raum auswählen" className="h-11 min-w-0 max-w-72 gap-3"><SelectValue /></SelectTrigger>
+                <SelectContent className="max-h-80 max-w-[calc(100vw-3rem)]">
+                  <SelectItem value="all">Alle Räume</SelectItem>
+                  {rooms.map((r) => <SelectItem key={r} value={r} className="min-h-11">{r}</SelectItem>)}
+                </SelectContent>
+              </Select>
+              {room ? <Button variant="ghost" size="icon" aria-label="Raumfilter zurücksetzen" title="Alle Räume" onClick={() => setRoom(null)}><X /></Button> : <span className="shrink-0 text-xs text-muted-foreground">{rooms.length} Räume</span>}
             </nav>
           )}
           <ActivityOverview groups={shown} call={callService} />
@@ -198,6 +202,8 @@ function Dashboard() {
         open={open}
         onOpenChange={setOpen}
         config={config}
+        style={style}
+        onStyleChange={(value) => { setStyle(value); saveDashboardStyle(value); }}
         onSave={(c) => {
           saveConfig(c);
           setConfig(c);

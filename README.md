@@ -71,7 +71,8 @@ Namen wie „PV“, „Solar“, „Wechselrichter“ bzw. „Haus“, „Verbra
 - **Inaktiv & ausgeschaltet:** einklappbar, darunter alle ausgeschalteten Geräte
 - **Immer sichtbar:** Temperatur & Luftfeuchte, Kameras, Wetter, Energie
 - Rauchmelder erscheinen automatisch, wenn sie in Home Assistant als „Rauch“ eingestuft sind.
-- **Räume:** oben Knöpfe pro Raum (aus den Bereichen in Home Assistant), um nur einen Raum zu zeigen
+- **Räume:** eine kompakte Auswahlliste statt einzelner Knöpfe, auch bei vielen Räumen nur eine Zeile. Die Räume kommen aus den Bereichen in Home Assistant. „Alle Räume“ bzw. das × setzt den Filter zurück. Der Filter betrifft Geräte und Melder; Temperatur, Wetter und Energie bleiben sichtbar.
+- **Stil:** in den Dashboard-Einstellungen zwischen „Dunkel & Gold“, „Graphit & Eis“ und „Dunkel & Salbei“ wechseln. Die Auswahl gilt sofort und bleibt auf diesem Gerät gespeichert – unabhängig von der Verbindung und auch im Demo-Modus.
 - **PV-Verlauf:** Kurve der PV-Leistung der letzten 12 Stunden unter „Energie“
 - **Rauchalarm:** löst ein Melder aus, wird der ganze Bildschirm rot mit dem Namen des Melders („Gesehen“ blendet aus)
 - **Nachtuhr:** zwischen 22 und 6 Uhr erscheint nach einer Minute ohne Berührung eine gedimmte Uhr; antippen zeigt wieder das Dashboard

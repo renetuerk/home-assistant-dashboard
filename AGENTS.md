@@ -14,3 +14,4 @@
 - Without a saved connection the dashboard runs on demo data from src/lib/ha-demo.ts so the design is always previewable.
 - Self-hosting via Docker builds with NITRO_PRESET=node-server (see Dockerfile).
 - Use the shared ha-activity classifier for device activity grouping; continuous numeric readings stay separate because their values do not represent on/off states.
+- Keep device appearance preferences separate from HA connection settings and apply styles via global semantic CSS tokens so changing or clearing a connection does not reset appearance.
