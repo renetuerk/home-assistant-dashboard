@@ -39,7 +39,7 @@ export function SettingsDialog({
             auf diesem Gerät gespeichert.
           </DialogDescription>
         </DialogHeader>
-        <div className="flex flex-col gap-1.5 border-b border-border pb-4">
+        <div className="flex flex-col gap-3 border-b border-border pb-4">
           <label htmlFor="dashboard-style" className="text-sm">Stil</label>
           <Select value={style} onValueChange={(value) => {
             const selected = dashboardStyles.find((item) => item.id === value);
@@ -48,6 +48,22 @@ export function SettingsDialog({
             <SelectTrigger id="dashboard-style"><SelectValue /></SelectTrigger>
             <SelectContent>{dashboardStyles.map((item) => <SelectItem key={item.id} value={item.id}>{item.label}</SelectItem>)}</SelectContent>
           </Select>
+          <label htmlFor="energy-price" className="flex flex-col gap-1.5 text-sm">
+            Strompreis (€/kWh)
+            <Input
+              id="energy-price"
+              inputMode="decimal"
+              defaultValue={String(price).replace(".", ",")}
+              onChange={(e) => {
+                const value = Number(e.target.value.replace(",", "."));
+                if (Number.isFinite(value) && value >= 0) onPriceChange(value);
+              }}
+              placeholder="0,30"
+            />
+          </label>
+          <p className="text-xs text-muted-foreground">
+            Wird für die Stromkosten unter „Energie“ verwendet und gilt sofort – auch im Demo-Modus.
+          </p>
         </div>
         <div className="flex flex-col gap-3">
           <label className="flex flex-col gap-1.5 text-sm">
