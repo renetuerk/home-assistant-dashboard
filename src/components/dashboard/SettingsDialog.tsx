@@ -3,17 +3,23 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } f
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import type { HaConfig } from "@/lib/ha";
+import { dashboardStyles, type DashboardStyle } from "@/lib/dashboard-appearance";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 export function SettingsDialog({
   open,
   onOpenChange,
   config,
   onSave,
+  style,
+  onStyleChange,
 }: {
   open: boolean;
   onOpenChange: (o: boolean) => void;
   config: HaConfig | null;
   onSave: (c: HaConfig | null) => void;
+  style: DashboardStyle;
+  onStyleChange: (style: DashboardStyle) => void;
 }) {
   const [url, setUrl] = useState(config?.url ?? "http://homeassistant.local:8123");
   const [token, setToken] = useState(config?.token ?? "");
@@ -21,14 +27,24 @@ export function SettingsDialog({
   const [powerEntity, setPowerEntity] = useState(config?.powerEntity ?? "");
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent>
+      <DialogContent className="max-h-[90dvh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle className="font-display text-2xl font-normal">Mit Home Assistant verbinden</DialogTitle>
+          <DialogTitle className="font-display text-2xl font-normal">Dashboard-Einstellungen</DialogTitle>
           <DialogDescription>
             Token erstellen: Home Assistant → Profil → Sicherheit → „Langlebige Zugangs-Token“. Die Daten bleiben nur
             auf diesem Gerät gespeichert.
           </DialogDescription>
         </DialogHeader>
+        <div className="flex flex-col gap-1.5 border-b border-border pb-4">
+          <label htmlFor="dashboard-style" className="text-sm">Stil</label>
+          <Select value={style} onValueChange={(value) => {
+            const selected = dashboardStyles.find((item) => item.id === value);
+            if (selected) onStyleChange(selected.id);
+          }}>
+            <SelectTrigger id="dashboard-style"><SelectValue /></SelectTrigger>
+            <SelectContent>{dashboardStyles.map((item) => <SelectItem key={item.id} value={item.id}>{item.label}</SelectItem>)}</SelectContent>
+          </Select>
+        </div>
         <div className="flex flex-col gap-3">
           <label className="flex flex-col gap-1.5 text-sm">
             Adresse
