@@ -4,10 +4,13 @@ import { Settings, MapPin, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { loadDashboardStyle, saveDashboardStyle, type DashboardStyle } from "@/lib/dashboard-appearance";
+import { loadEnergyPrice, saveEnergyPrice } from "@/lib/energy-costs";
 import { cameraUrl, loadConfig, saveConfig, useHomeAssistant, type HaConfig, type HassEntity } from "@/lib/ha";
 import {
   CameraTile,
+  EnergyCostTile,
   EnergyTile,
+  PersonChip,
   Section,
   SensorChip,
   WeatherTile,
@@ -46,7 +49,9 @@ function Dashboard() {
   const [config, setConfig] = useState<HaConfig | null>(null);
   const [open, setOpen] = useState(false);
   const [style, setStyle] = useState<DashboardStyle>("gold");
+  const [price, setPrice] = useState(0.3);
   useEffect(() => setStyle(loadDashboardStyle()), []);
+  useEffect(() => setPrice(loadEnergyPrice()), []);
   useEffect(() => {
     document.documentElement.dataset["dashboardStyle"] = style;
   }, [style]);
