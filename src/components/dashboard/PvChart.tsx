@@ -12,7 +12,7 @@ export function PvChart({ entityId, load }: { entityId: string; load: (id: strin
   }, [entityId, load]);
   if (pts.length < 2) return null;
   const W = 300, H = 80;
-  const t0 = pts[0].t, t1 = pts[pts.length - 1].t;
+  const t0 = pts[0]!.t, t1 = pts[pts.length - 1]!.t;
   const max = Math.max(...pts.map((p) => p.v), 1);
   const xy = pts.map((p) => [((p.t - t0) / Math.max(t1 - t0, 1)) * W, H - (p.v / max) * (H - 4)] as const);
   const line = xy.map(([x, y], i) => `${i ? "L" : "M"}${x.toFixed(1)},${y.toFixed(1)}`).join(" ");

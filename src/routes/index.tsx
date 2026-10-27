@@ -94,7 +94,7 @@ function Dashboard() {
   }, [states, config]);
 
   const rooms = useMemo(() => {
-    const ids = [...g.lights, ...g.climate, ...g.security, ...g.smoke].map((e) => areas[e.entity_id]).filter(Boolean);
+    const ids = [...g.lights, ...g.climate, ...g.security, ...g.smoke].map((e) => areas[e.entity_id]).filter((a): a is string => !!a);
     return [...new Set(ids)].sort((a, b) => a.localeCompare(b, "de"));
   }, [g, areas]);
   const shown = useMemo(() => {
@@ -146,7 +146,7 @@ function Dashboard() {
         <div className="flex flex-col gap-8 lg:col-span-8">
           {rooms.length > 1 && (
             <nav aria-label="Räume" className="flex flex-wrap gap-2">
-              {[null, ...rooms].map((r) => (
+              {([null, ...rooms] as (string | null)[]).map((r) => (
                 <button
                   key={r ?? "alle"}
                   onClick={() => setRoom(r)}
