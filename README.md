@@ -80,6 +80,33 @@ Namen wie „PV“, „Solar“, „Wechselrichter“ bzw. „Haus“, „Verbra
 - **Nachtuhr:** zwischen 22 und 6 Uhr erscheint nach einer Minute ohne Berührung eine gedimmte Uhr; antippen zeigt wieder das Dashboard
 - Der Bildschirm des Tablets bleibt an, solange das Dashboard geöffnet ist (sofern der Browser das unterstützt).
 
+### Shelly und Garagentore
+
+Shelly-Verwaltungsschalter wie `aioshelly_ble_integration` sowie von Home Assistant als
+Konfiguration/Diagnose markierte Schalter werden nicht unter Licht angezeigt.
+`cover.*`-Entitäten erscheinen unter **Tore & Rollläden**, mit Öffnen/Stoppen/Schließen
+entsprechend den in Home Assistant unterstützten Funktionen. Offene oder fahrende Tore
+stehen unter „Jetzt aktiv“, geschlossene im einklappbaren Bereich. Relais-Schalter am
+selben Home-Assistant-Gerät werden zugunsten des Covers ausgeblendet; ohne Gerätezuordnung
+gilt das nur bei identischen IDs hinter dem Punkt (Groß-/Kleinschreibung wird ignoriert).
+
+### Kameras (auch RTSP / nur bei Bedarf)
+
+Alle sichtbaren `camera.*`-Entitäten bleiben im Kamerabereich, auch bei `idle` oder
+vorübergehender Nichterreichbarkeit. Das Dashboard ruft das von Home Assistant bereitgestellte
+Kamerabild beim Öffnen und anschließend alle zehn Sekunden ab; der Pfeilkreis aktualisiert
+manuell. Bei einem Fehler bleibt das letzte erfolgreiche Bild mit Kennzeichnung sichtbar.
+In einem ausgeblendeten Browser-Tab pausieren neue Abrufe.
+
+Das sind **regelmäßig aktualisierte Einzelbilder, kein flüssiges Livevideo**.
+Der Browser kann `rtsp://` nicht direkt wiedergeben. Die RTSP-Kamera muss in Home Assistant
+eingebunden sein und dort ein Kamerabild (`entity_picture`) liefern. Stellt die Integration
+nur einen Stream, aber kein Einzelbild bereit, ist zusätzlich eine passende Kamera-/Stream-
+Konfiguration in Home Assistant erforderlich; ein Dashboard-Update allein löst das nicht.
+Home Assistant muss vom Tablet erreichbar sein. Der langlebige Anmelde-Token wird nicht
+in Bildadressen eingefügt; verwendet wird ausschließlich die von Home Assistant gelieferte
+Kamera-Bildadresse mit ihrem Kamera-Token.
+
 ## Änderungen übernehmen
 
 Nach jeder Änderung in Lovable auf dem MacBook im Projektordner:

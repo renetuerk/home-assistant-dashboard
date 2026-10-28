@@ -20,7 +20,6 @@ import {
   CloudSun,
   Moon,
   Wind,
-  Video,
   Siren,
   User,
   UserCheck,
@@ -30,6 +29,7 @@ import { Slider } from "@/components/ui/slider";
 import { energyCost, formatEuro } from "@/lib/energy-costs";
 import { cn } from "@/lib/utils";
 import type { HassEntity } from "@/lib/ha";
+export { CameraTile } from "./CameraTile";
 
 type Call = (domain: string, service: string, data: Record<string, any>) => void;
 const name = (e: HassEntity) => e.attributes.friendly_name ?? e.entity_id;
@@ -200,23 +200,6 @@ export function EnergyTile({ power, pv, today, battery }: { power: HassEntity | 
           </div>
         ))}
       </div>
-    </div>
-  );
-}
-
-export function CameraTile({ e, src }: { e: HassEntity; src: string | null }) {
-  return (
-    <div className="tile relative aspect-video overflow-hidden">
-      {src ? (
-        <img src={src} alt={name(e)} className="size-full object-cover" />
-      ) : (
-        <div className="grid size-full place-items-center bg-secondary">
-          <Video className="size-8 text-muted-foreground" />
-        </div>
-      )}
-      <span className="absolute bottom-3 left-3 rounded-full bg-background/70 px-3 py-1 text-xs backdrop-blur">
-        {name(e)}
-      </span>
     </div>
   );
 }

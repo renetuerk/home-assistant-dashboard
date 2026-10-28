@@ -228,5 +228,12 @@ function demoHistory(current: number, hours: number): HistoryPoint[] {
 
 export function cameraUrl(config: HaConfig | null, e: HassEntity) {
   if (!config?.url || !e.attributes.entity_picture) return null;
-  return config.url.replace(/\/+$/, "") + e.attributes.entity_picture;
+  try {
+    const base = new URL(config.url);
+    const url = new URL(e.attributes.entity_picture, base);
+    // Camera tokens must only be sent to the configured Home Assistant origin.
+    return ["http:", "https:"].includes(url.protocol) && url.origin === base.origin ? url.toString() : null;
+  } catch {
+    return null;
+  }
 }
