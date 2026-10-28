@@ -13,6 +13,9 @@ const list: HassEntity[] = [
   e("light.schlafzimmer", "off", { friendly_name: "Schlafzimmer" }),
   e("light.flur", "off", { friendly_name: "Flur" }),
   e("switch.kaffeemaschine", "off", { friendly_name: "Kaffeemaschine" }),
+  e("cover.smart_garage", "open", { friendly_name: "Garagentor", device_class: "garage", supported_features: 11 }),
+  e("switch.smart_garage", "off", { friendly_name: "Garagentor Relais" }),
+  e("switch.shelly_aioshelly_ble_integration", "on", { friendly_name: "aioshelly_ble_integration" }),
   e("climate.wohnzimmer", "heat", {
     friendly_name: "Wohnzimmer",
     current_temperature: 21.4,
