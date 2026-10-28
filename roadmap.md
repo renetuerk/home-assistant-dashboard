@@ -3,5 +3,5 @@
 - [x] Anleitung aktualisieren und Auswahl im Browser prüfen (Demo; lokales Home Assistant hier nicht erreichbar).
 - [x] Anwesenheit (Personen aus Home Assistant) anzeigen.
 - [x] Stromkosten mit einstellbarem Strompreis unter „Energie“ anzeigen.
-- [ ] Shelly-BLE-Verwaltungsschalter aus Licht ausblenden und Cover statt zugehörigem Garagenschalter anzeigen.
-- [ ] Kamerabilder regelmäßig über Home Assistant abrufen; RTSP-Grenzen dokumentieren und prüfen.
+- [x] Shelly-BLE-Verwaltungsschalter aus Licht ausblenden und Cover statt zugehörigem Garagenschalter anzeigen (Tests und simulierte HA-Verbindung geprüft).
+- [x] Kamerabilder regelmäßig über Home Assistant abrufen; RTSP-Grenzen dokumentiert (simulierte Bildabrufe geprüft; echte lokale Kameras hier nicht erreichbar).
