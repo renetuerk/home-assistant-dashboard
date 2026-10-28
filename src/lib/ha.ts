@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { demoAreas, demoStates } from "./ha-demo";
+import type { EntityRegistryEntry } from "./ha-devices";
 
 export type HassEntity = {
   entity_id: string;
@@ -36,6 +37,7 @@ export type HistoryPoint = { t: number; v: number };
 export function useHomeAssistant(config: HaConfig | null) {
   const [states, setStates] = useState<Record<string, HassEntity>>(demoStates);
   const [areas, setAreas] = useState<Record<string, string>>(demoAreas);
+  const [registry, setRegistry] = useState<EntityRegistryEntry[]>([]);
   const [status, setStatus] = useState<ConnStatus>("demo");
   const [error, setError] = useState<string | null>(null);
   const wsRef = useRef<WebSocket | null>(null);
@@ -58,6 +60,7 @@ export function useHomeAssistant(config: HaConfig | null) {
     if (!config?.url || !config?.token) {
       setStates(demoStates);
       setAreas(demoAreas);
+      setRegistry([]);
       setStatus("demo");
       return;
     }
@@ -99,7 +102,10 @@ export function useHomeAssistant(config: HaConfig | null) {
             request({ type: "config/device_registry/list" }),
             request({ type: "config/entity_registry/list" }),
           ])
-            .then(([areaList, devices, entities]) => setAreas(buildAreaMap(areaList, devices, entities)))
+            .then(([areaList, devices, entities]) => {
+              setAreas(buildAreaMap(areaList, devices, entities));
+              setRegistry(entities ?? []);
+            })
             .catch(() => {});
         } else if (msg.type === "result") {
           const cb = pendingRef.current.get(msg.id);
@@ -175,6 +181,8 @@ export function useHomeAssistant(config: HaConfig | null) {
           if (service === "turn_off") state = "off";
           if (service === "lock") state = "locked";
           if (service === "unlock") state = "unlocked";
+          if (service === "open_cover") state = "open";
+          if (service === "close_cover") state = "closed";
           if (data.brightness_pct != null) {
             attrs.brightness = Math.round((data.brightness_pct / 100) * 255);
             state = data.brightness_pct > 0 ? "on" : "off";
@@ -190,7 +198,7 @@ export function useHomeAssistant(config: HaConfig | null) {
     [status],
   );
 
-  return { states, areas, status, error, callService, fetchHistory };
+  return { states, areas, registry, status, error, callService, fetchHistory };
 }
 
 /** Maps entity_id → area name, using the entity's own area or its device's area. */

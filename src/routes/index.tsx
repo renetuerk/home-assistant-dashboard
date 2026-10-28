@@ -20,6 +20,7 @@ import { SettingsDialog } from "@/components/dashboard/SettingsDialog";
 import { PvChart } from "@/components/dashboard/PvChart";
 import { NightClock, SmokeAlarmOverlay } from "@/components/dashboard/Overlays";
 import { cn } from "@/lib/utils";
+import { dashboardDevices } from "@/lib/ha-devices";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -67,11 +68,12 @@ function Dashboard() {
     document.addEventListener("visibilitychange", onVis);
     return () => { document.removeEventListener("visibilitychange", onVis); lock?.release?.(); };
   }, []);
-  const { states, areas, status, error, callService, fetchHistory } = useHomeAssistant(config);
+  const { states, areas, registry, status, error, callService, fetchHistory } = useHomeAssistant(config);
   const [room, setRoom] = useState<string | null>(null);
   const now = useClock();
 
   const g = useMemo(() => {
+    const devices = dashboardDevices(states, registry);
     const all = Object.values(states).filter((e) => !e.attributes.hidden && e.state !== "unavailable");
     const d = (p: string) => all.filter((e) => e.entity_id.startsWith(p + "."));
     const sensors = d("sensor");
@@ -88,7 +90,8 @@ function Dashboard() {
     const pv = (config?.pvEntity ? states[config.pvEntity] : undefined) ?? autoPv;
     const power = (config?.powerEntity ? states[config.powerEntity] : undefined) ?? autoPower;
     return {
-      lights: [...d("light"), ...d("switch")].slice(0, 12),
+      lights: devices.lights,
+      covers: devices.covers,
       climate: d("climate").slice(0, 4),
       sensors: [...byClass("temperature"), ...byClass("humidity")].slice(0, 6),
       weather: d("weather")[0],
@@ -98,7 +101,7 @@ function Dashboard() {
       month: find("energy", /monat|month/i),
       battery: find("battery", /batterie|battery|speicher|akku/i),
       persons: d("person").slice(0, 8),
-      cameras: d("camera").slice(0, 4),
+      cameras: devices.cameras,
       security: [
         ...d("alarm_control_panel"),
         ...d("lock"),
@@ -106,21 +109,21 @@ function Dashboard() {
       ].slice(0, 10),
       smoke: d("binary_sensor").filter((e) => e.attributes.device_class === "smoke").slice(0, 12),
     };
-  }, [states, config]);
+  }, [states, config, registry]);
 
   const rooms = useMemo(() => {
-    const ids = [...g.lights, ...g.climate, ...g.security, ...g.smoke].map((e) => areas[e.entity_id]).filter((a): a is string => !!a);
+    const ids = [...g.lights, ...g.climate, ...g.security, ...g.smoke, ...g.covers].map((e) => areas[e.entity_id]).filter((a): a is string => !!a);
     return [...new Set(ids)].sort((a, b) => a.localeCompare(b, "de"));
   }, [g, areas]);
   const shown = useMemo(() => {
     const f = (l: HassEntity[]) => (room ? l.filter((e) => areas[e.entity_id] === room) : l);
-    return { lights: f(g.lights), climate: f(g.climate), security: f(g.security), smoke: f(g.smoke) };
+    return { lights: f(g.lights), climate: f(g.climate), security: f(g.security), smoke: f(g.smoke), covers: f(g.covers) };
   }, [g, room, areas]);
 
   const hour = now?.getHours() ?? 12;
   const greeting = hour < 11 ? "Guten Morgen" : hour < 18 ? "Guten Tag" : "Guten Abend";
   const lightsOn = g.lights.filter((e) => e.state === "on").length;
-  const openSec = g.security.filter((e) => e.state === "on" || e.state === "unlocked").length;
+  const openSec = g.security.filter((e) => e.state === "on" || e.state === "unlocked").length + g.covers.filter(e => ["open", "opening", "closing"].includes(e.state)).length;
   const smokeAlarm = g.smoke.filter((e) => e.state === "on").length;
 
   const statusLabel = { demo: "Demo-Modus", connecting: "Verbinde …", connected: "Verbunden", error: error ?? "Fehler" }[status];
