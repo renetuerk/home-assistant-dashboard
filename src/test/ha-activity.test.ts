@@ -5,6 +5,11 @@ import type { HassEntity } from "@/lib/ha";
 const e = (entity_id: string, state: string, attributes = {}): HassEntity => ({ entity_id, state, attributes });
 
 describe("Device activity", () => {
+  it("groups open and moving covers as active, closed covers as inactive", () => {
+    for (const state of ["open", "opening", "closing"]) expect(activityOf(e("cover.Smart", state))).toBe("active");
+    expect(activityOf(e("cover.Smart", "closed"))).toBe("inactive");
+    expect(activityOf(e("cover.Smart", "unavailable"))).toBe("unknown");
+  });
   it("puts switched-on devices first and switched-off devices in the inactive group", () => {
     expect(activityOf(e("light.room", "on"))).toBe("active");
     expect(activityOf(e("switch.socket", "off"))).toBe("inactive");

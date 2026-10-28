@@ -10,6 +10,7 @@ export function activityOf(e: HassEntity): "active" | "inactive" | "unknown" {
     return "active";
   }
   if (domain === "lock") return e.state === "locked" ? "inactive" : "active";
+  if (domain === "cover") return e.state === "closed" ? "inactive" : ["open", "opening", "closing"].includes(e.state) ? "active" : "unknown";
   if (domain === "alarm_control_panel") return e.state === "disarmed" ? "inactive" : "active";
   return e.state === "on" ? "active" : e.state === "off" ? "inactive" : "unknown";
 }
