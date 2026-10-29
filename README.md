@@ -59,6 +59,7 @@ Im selben Fenster gibt es zwei weitere Felder:
 - **PV-Sensor (Erzeugung):** Entitäts-ID der aktuellen PV-Leistung, z. B.
   `sensor.wechselrichter_wirkleistung`
 - **Hausverbrauch-Sensor:** Entitäts-ID des aktuellen Hausverbrauchs, z. B. `sensor.hausverbrauch`
+- **Hausverbrauch heute / Monat:** kWh-Zähler des Hausverbrauchs für die Stromkosten, z. B. `sensor.hausverbrauch_heute`. Leer lassen = automatische Erkennung (PV-Zähler werden ignoriert).
 
 Die ID findest du in Home Assistant unter Einstellungen → Geräte & Dienste → Entitäten.
 Bleiben die Felder leer, sucht das Dashboard selbst nach passenden Sensoren (Leistung in W/kW,
