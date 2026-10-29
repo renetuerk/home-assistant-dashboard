@@ -5,9 +5,8 @@ import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { loadDashboardStyle, saveDashboardStyle, type DashboardStyle } from "@/lib/dashboard-appearance";
 import { loadEnergyPrice, saveEnergyPrice } from "@/lib/energy-costs";
-import { cameraUrl, loadConfig, saveConfig, useHomeAssistant, type HaConfig, type HassEntity } from "@/lib/ha";
+import { loadConfig, saveConfig, useHomeAssistant, type HaConfig, type HassEntity } from "@/lib/ha";
 import {
-  CameraTile,
   EnergyCostTile,
   EnergyTile,
   PersonChip,
@@ -89,6 +88,11 @@ function Dashboard() {
       powerSensors.find((e) => e !== autoPv && inName(e, useRe)) ?? powerSensors.find((e) => e !== autoPv);
     const pv = (config?.pvEntity ? states[config.pvEntity] : undefined) ?? autoPv;
     const power = (config?.powerEntity ? states[config.powerEntity] : undefined) ?? autoPower;
+    // Energy costs must use household consumption, never PV production/feed-in counters.
+    const usage = byClass("energy").filter((e) => !inName(e, pvRe) || inName(e, /verbrauch|consumption|haus|house/i));
+    const pick = (re: RegExp) => usage.find((e) => inName(e, re) && inName(e, useRe)) ?? usage.find((e) => inName(e, re));
+    const today = (config?.todayEntity ? states[config.todayEntity] : undefined) ?? pick(/heute|today|tag|daily/i) ?? usage[0];
+    const month = (config?.monthEntity ? states[config.monthEntity] : undefined) ?? pick(/monat|month/i);
     return {
       lights: devices.lights,
       covers: devices.covers,
@@ -97,8 +101,8 @@ function Dashboard() {
       weather: d("weather")[0],
       pv,
       power,
-      today: find("energy", /heute|today|tag/i) ?? byClass("energy")[0],
-      month: find("energy", /monat|month/i),
+      today,
+      month,
       battery: find("battery", /batterie|battery|speicher|akku/i),
       persons: d("person").slice(0, 8),
       cameras: devices.cameras,
@@ -180,13 +184,6 @@ function Dashboard() {
             <Section title="Temperatur & Luftfeuchte">
               <div className="grid gap-3 md:grid-cols-2">
                 {g.sensors.map((e) => <SensorChip key={e.entity_id} e={e} />)}
-              </div>
-            </Section>
-          )}
-          {g.cameras.length > 0 && (
-            <Section title="Kameras">
-              <div className="grid gap-4 md:grid-cols-2">
-                {g.cameras.map((e) => <CameraTile key={e.entity_id} e={e} src={cameraUrl(config, e)} />)}
               </div>
             </Section>
           )}

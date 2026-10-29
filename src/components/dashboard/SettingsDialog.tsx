@@ -29,6 +29,8 @@ export function SettingsDialog({
   const [token, setToken] = useState(config?.token ?? "");
   const [pvEntity, setPvEntity] = useState(config?.pvEntity ?? "");
   const [powerEntity, setPowerEntity] = useState(config?.powerEntity ?? "");
+  const [todayEntity, setTodayEntity] = useState(config?.todayEntity ?? "");
+  const [monthEntity, setMonthEntity] = useState(config?.monthEntity ?? "");
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-h-[90dvh] overflow-y-auto">
@@ -85,6 +87,14 @@ export function SettingsDialog({
             Hausverbrauch-Sensor
             <Input value={powerEntity} onChange={(e) => setPowerEntity(e.target.value)} placeholder="z. B. sensor.hausverbrauch" />
           </label>
+          <label className="flex flex-col gap-1.5 text-sm">
+            Hausverbrauch heute (kWh, für Stromkosten)
+            <Input value={todayEntity} onChange={(e) => setTodayEntity(e.target.value)} placeholder="z. B. sensor.hausverbrauch_heute" />
+          </label>
+          <label className="flex flex-col gap-1.5 text-sm">
+            Hausverbrauch Monat (kWh, für Stromkosten)
+            <Input value={monthEntity} onChange={(e) => setMonthEntity(e.target.value)} placeholder="z. B. sensor.hausverbrauch_monat" />
+          </label>
           <p className="text-xs text-muted-foreground">
             Hier die Entitäts-ID aus Home Assistant eintragen (Einstellungen → Geräte → Sensor → Entität). Leer lassen
             für automatische Erkennung.
@@ -101,6 +111,8 @@ export function SettingsDialog({
                 token: token.trim(),
                 ...(pvEntity.trim() ? { pvEntity: pvEntity.trim() } : {}),
                 ...(powerEntity.trim() ? { powerEntity: powerEntity.trim() } : {}),
+                ...(todayEntity.trim() ? { todayEntity: todayEntity.trim() } : {}),
+                ...(monthEntity.trim() ? { monthEntity: monthEntity.trim() } : {}),
               });
               onOpenChange(false);
             }}
