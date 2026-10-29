@@ -205,7 +205,7 @@ function Dashboard() {
             <Section title="Energie">
               <EnergyTile power={g.power} pv={g.pv} today={g.today} battery={g.battery} />
               <EnergyCostTile today={g.today} month={g.month} price={price} />
-              {g.pv && <PvChart entityId={g.pv.entity_id} load={fetchHistory} />}
+              <PvChart pvId={g.pv?.entity_id} powerId={g.power?.entity_id} load={fetchHistory} />
             </Section>
           )}
         </aside>
