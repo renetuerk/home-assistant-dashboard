@@ -5,3 +5,6 @@
 - [x] Stromkosten mit einstellbarem Strompreis unter „Energie“ anzeigen.
 - [x] Shelly-BLE-Verwaltungsschalter aus Licht ausblenden und Cover statt zugehörigem Garagenschalter anzeigen (Tests und simulierte HA-Verbindung geprüft).
 - [x] Kamerabilder regelmäßig über Home Assistant abrufen; RTSP-Grenzen dokumentiert (simulierte Bildabrufe geprüft; echte lokale Kameras hier nicht erreichbar).
+- [x] Wettervorhersage-Kacheln aus Home Assistant ergänzen.
+- [x] Hausverbrauch der letzten sieben abgeschlossenen Tage als Balkendiagramm ergänzen.
+- [x] Berechnungen testen, Anzeige prüfen und Anleitung ergänzen (15 Tests; Demo, schmaler Bildschirm und simulierte HA-Verbindung geprüft; echtes lokales Home Assistant hier nicht erreichbar).
