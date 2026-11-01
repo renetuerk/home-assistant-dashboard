@@ -25,6 +25,8 @@ export function PvChart({ pvId, powerId, load }: { pvId?: string | undefined; po
   const W = 300, H = 80;
   const t0 = Math.min(...all.map((p) => p.t)), t1 = Math.max(...all.map((p) => p.t));
   const max = Math.max(...all.map((p) => p.v), 1);
+  const pvMax = pv.length ? Math.max(...pv.map((p) => p.v)) : 0;
+  const useMax = use.length ? Math.max(...use.map((p) => p.v)) : 0;
   const path = (pts: HistoryPoint[]) => pts
     .map((p, i) => `${i ? "L" : "M"}${(((p.t - t0) / Math.max(t1 - t0, 1)) * W).toFixed(1)},${(H - (Math.max(p.v, 0) / max) * (H - 4)).toFixed(1)}`)
     .join(" ");
@@ -36,9 +38,8 @@ export function PvChart({ pvId, powerId, load }: { pvId?: string | undefined; po
       <div className="mb-3 flex flex-wrap items-baseline justify-between gap-2 text-sm">
         <span className="text-muted-foreground">Leistung · 12 Std.</span>
         <span className="flex gap-3 text-xs">
-          {pvLine && <span className="flex items-center gap-1.5"><span className="size-2 rounded-full bg-primary" />PV</span>}
-          {useLine && <span className="flex items-center gap-1.5"><span className="size-2 rounded-full bg-foreground" />Hausverbrauch</span>}
-          <span className="tabular-nums text-muted-foreground">max. {Math.round(max)} W</span>
+          {pvLine && <span className="flex items-center gap-1.5"><span className="size-2 rounded-full bg-primary" />PV <span className="tabular-nums text-muted-foreground">max. {Math.round(pvMax)} W</span></span>}
+          {useLine && <span className="flex items-center gap-1.5"><span className="size-2 rounded-full bg-foreground" />Hausverbrauch <span className="tabular-nums text-muted-foreground">max. {Math.round(useMax)} W</span></span>}
         </span>
       </div>
       <svg viewBox={`0 0 ${W} ${H}`} className="h-24 w-full" preserveAspectRatio="none" role="img" aria-label="Verlauf von PV-Leistung und Hausverbrauch">
