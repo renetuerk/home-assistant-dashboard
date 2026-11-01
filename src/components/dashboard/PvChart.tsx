@@ -25,6 +25,8 @@ export function PvChart({ pvId, powerId, load }: { pvId?: string | undefined; po
   const W = 300, H = 80;
   const t0 = Math.min(...all.map((p) => p.t)), t1 = Math.max(...all.map((p) => p.t));
   const max = Math.max(...all.map((p) => p.v), 1);
+  const pvMax = pv.length ? Math.max(...pv.map((p) => p.v)) : 0;
+  const useMax = use.length ? Math.max(...use.map((p) => p.v)) : 0;
   const path = (pts: HistoryPoint[]) => pts
     .map((p, i) => `${i ? "L" : "M"}${(((p.t - t0) / Math.max(t1 - t0, 1)) * W).toFixed(1)},${(H - (Math.max(p.v, 0) / max) * (H - 4)).toFixed(1)}`)
     .join(" ");
