@@ -17,6 +17,8 @@ import {
 import { ActivityOverview } from "@/components/dashboard/ActivityOverview";
 import { SettingsDialog } from "@/components/dashboard/SettingsDialog";
 import { PvChart } from "@/components/dashboard/PvChart";
+import { WeatherForecast } from "@/components/dashboard/WeatherForecast";
+import { ConsumptionChart } from "@/components/dashboard/ConsumptionChart";
 import { NightClock, SmokeAlarmOverlay } from "@/components/dashboard/Overlays";
 import { cn } from "@/lib/utils";
 import { dashboardDevices } from "@/lib/ha-devices";
@@ -67,7 +69,7 @@ function Dashboard() {
     document.addEventListener("visibilitychange", onVis);
     return () => { document.removeEventListener("visibilitychange", onVis); lock?.release?.(); };
   }, []);
-  const { states, areas, registry, status, error, callService, fetchHistory } = useHomeAssistant(config);
+  const { states, areas, registry, status, error, callService, fetchHistory, fetchForecast, fetchDailyUsage } = useHomeAssistant(config);
   const [room, setRoom] = useState<string | null>(null);
   const now = useClock();
 
@@ -199,6 +201,7 @@ function Dashboard() {
           {g.weather && (
             <Section title="Wetter">
               <WeatherTile e={g.weather} />
+               <WeatherForecast entityId={g.weather.entity_id} unit={String(g.weather.attributes.temperature_unit ?? "°C")} load={fetchForecast} />
             </Section>
           )}
           {(g.power || g.pv) && (
@@ -206,6 +209,7 @@ function Dashboard() {
               <EnergyTile power={g.power} pv={g.pv} today={g.today} battery={g.battery} />
               <EnergyCostTile today={g.today} month={g.month} price={price} />
               <PvChart pvId={g.pv?.entity_id} powerId={g.power?.entity_id} load={fetchHistory} />
+               <ConsumptionChart entityId={g.today?.entity_id} load={fetchDailyUsage} />
             </Section>
           )}
         </aside>

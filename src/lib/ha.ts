@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { demoAreas, demoStates } from "./ha-demo";
 import type { EntityRegistryEntry } from "./ha-devices";
+import { dailyUsage, energyWindow, forecastPoints, type DailyUsage, type ForecastMode, type ForecastPoint } from "./ha-insights";
 
 export type HassEntity = {
   entity_id: string;
@@ -51,7 +52,11 @@ export function useHomeAssistant(config: HaConfig | null) {
     if (!ws || ws.readyState !== WebSocket.OPEN) return Promise.reject(new Error("offline"));
     const id = idRef.current++;
     return new Promise<any>((resolve) => {
-      pendingRef.current.set(id, resolve);
+      const timer = setTimeout(() => {
+        pendingRef.current.delete(id);
+        resolve(null);
+      }, 15_000);
+      pendingRef.current.set(id, (result) => { clearTimeout(timer); resolve(result); });
       ws.send(JSON.stringify({ id, ...msg }));
     });
   }, []);
@@ -128,6 +133,8 @@ export function useHomeAssistant(config: HaConfig | null) {
         setError("Home Assistant nicht erreichbar");
       };
       ws.onclose = () => {
+        for (const done of pendingRef.current.values()) done(null);
+        pendingRef.current.clear();
         if (!closed) retry = setTimeout(connect, 5000);
       };
     };
@@ -156,6 +163,31 @@ export function useHomeAssistant(config: HaConfig | null) {
     },
     [status, request],
   );
+
+  const fetchForecast = useCallback(async (entityId: string, mode: ForecastMode): Promise<ForecastPoint[]> => {
+    if (status === "demo") {
+      return Array.from({ length: mode === "daily" ? 5 : 6 }, (_, i) => {
+        const date = new Date();
+        if (mode === "daily") date.setDate(date.getDate() + i + 1);
+        else date.setHours(date.getHours() + i + 1, 0, 0, 0);
+        return { datetime: date.toISOString(), condition: ["partlycloudy", "sunny", "rainy", "cloudy", "sunny", "partlycloudy"][i] ?? "cloudy", temperature: [15, 17, 13, 14, 16, 15][i] ?? 15, templow: 8 + i, precipitation: i === 2 ? 2.4 : 0 };
+      });
+    }
+    if (status !== "connected") throw new Error("Keine Verbindung");
+    const result = await request({ type: "call_service", domain: "weather", service: "get_forecasts", service_data: { entity_id: entityId, type: mode }, return_response: true });
+    const points = forecastPoints(result?.response?.[entityId]?.forecast);
+    if (!points.length) throw new Error("Keine Vorhersage verfügbar");
+    return points.filter((point) => Date.parse(point.datetime) >= Date.now()).slice(0, mode === "daily" ? 5 : 6);
+  }, [status, request]);
+
+  const fetchDailyUsage = useCallback(async (entityId: string): Promise<DailyUsage[]> => {
+    const { start, end, days } = energyWindow();
+    if (status === "demo") return days.map((day, i) => ({ start: day, kwh: [9.8, 11.2, 8.4, 16.7, 10.5, 12.1, 9.3][i] ?? 0 }));
+    if (status !== "connected") throw new Error("Keine Verbindung");
+    const result = await request({ type: "recorder/statistics_during_period", start_time: start.toISOString(), end_time: end.toISOString(), statistic_ids: [entityId], period: "day", types: ["change"], units: { energy: "kWh" } });
+    if (!result) throw new Error("Verbrauchsverlauf nicht verfügbar");
+    return dailyUsage(result[entityId] ?? []);
+  }, [status, request]);
 
   const callService = useCallback(
     (domain: string, service: string, data: any) => {
@@ -198,7 +230,7 @@ export function useHomeAssistant(config: HaConfig | null) {
     [status],
   );
 
-  return { states, areas, registry, status, error, callService, fetchHistory };
+  return { states, areas, registry, status, error, callService, fetchHistory, fetchForecast, fetchDailyUsage };
 }
 
 /** Maps entity_id → area name, using the entity's own area or its device's area. */

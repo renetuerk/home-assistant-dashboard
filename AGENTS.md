@@ -17,3 +17,4 @@
 - Keep device appearance preferences separate from HA connection settings and apply styles via global semantic CSS tokens so changing or clearing a connection does not reset appearance.
 - Select dashboard devices through the shared registry-aware selector; omit infrastructure/configuration switches and prefer covers over same-device relay switches so garage controls use cover services.
 - Cameras use periodically refreshed Home Assistant still-image URLs restricted to its origin; never put long-lived login tokens in image URLs or attempt native RTSP playback in the browser.
+- Forecasts use Home Assistant weather service responses; daily household consumption uses Recorder daily energy changes in kWh for seven completed local calendar days, so meter resets are handled by Home Assistant and missing statistics are never shown as zero.
