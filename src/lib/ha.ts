@@ -184,7 +184,8 @@ export function useHomeAssistant(config: HaConfig | null) {
     const { start, end, days } = energyWindow();
     if (status === "demo") return days.map((day, i) => ({ start: day, kwh: [9.8, 11.2, 8.4, 16.7, 10.5, 12.1, 9.3][i] ?? 0 }));
     if (status !== "connected") throw new Error("Keine Verbindung");
-    const result = await request({ type: "recorder/statistics_during_period", start_time: start.toISOString(), end_time: end.toISOString(), statistic_ids: [entityId], period: "day", types: ["change"], units: { energy: "kWh" } });
+    // Recorder rounds daily end_time to the next midnight: pin it to yesterday.
+    const result = await request({ type: "recorder/statistics_during_period", start_time: start.toISOString(), end_time: new Date(end.getTime() - 1).toISOString(), statistic_ids: [entityId], period: "day", types: ["change"], units: { energy: "kWh" } });
     if (!result) throw new Error("Verbrauchsverlauf nicht verfügbar");
     return dailyUsage(result[entityId] ?? []);
   }, [status, request]);
