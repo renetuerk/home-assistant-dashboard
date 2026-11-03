@@ -8,3 +8,6 @@
 - [x] Wettervorhersage-Kacheln aus Home Assistant ergänzen.
 - [x] Hausverbrauch der letzten sieben abgeschlossenen Tage als Balkendiagramm ergänzen.
 - [x] Berechnungen testen, Anzeige prüfen und Anleitung ergänzen (15 Tests; Demo, schmaler Bildschirm und simulierte HA-Verbindung geprüft; echtes lokales Home Assistant hier nicht erreichbar).
+
+- [ ] Rangliste einzelner Stromverbraucher über sieben abgeschlossene Tage ergänzen, Zählerauswahl und Kosten anzeigen.
+- [ ] Verbrauchsberechnung testen, Anzeige prüfen und Anleitung aktualisieren.
