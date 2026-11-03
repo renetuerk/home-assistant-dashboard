@@ -19,6 +19,7 @@ import { SettingsDialog } from "@/components/dashboard/SettingsDialog";
 import { PvChart } from "@/components/dashboard/PvChart";
 import { WeatherForecast } from "@/components/dashboard/WeatherForecast";
 import { ConsumptionChart } from "@/components/dashboard/ConsumptionChart";
+import { ConsumerRanking } from "@/components/dashboard/ConsumerRanking";
 import { NightClock, SmokeAlarmOverlay } from "@/components/dashboard/Overlays";
 import { cn } from "@/lib/utils";
 import { dashboardDevices } from "@/lib/ha-devices";
@@ -69,7 +70,7 @@ function Dashboard() {
     document.addEventListener("visibilitychange", onVis);
     return () => { document.removeEventListener("visibilitychange", onVis); lock?.release?.(); };
   }, []);
-  const { states, areas, registry, status, error, callService, fetchHistory, fetchForecast, fetchDailyUsage } = useHomeAssistant(config);
+  const { states, areas, registry, status, error, callService, fetchHistory, fetchForecast, fetchDailyUsage, fetchConsumerUsage } = useHomeAssistant(config);
   const [room, setRoom] = useState<string | null>(null);
   const now = useClock();
 
@@ -182,6 +183,7 @@ function Dashboard() {
             </nav>
           )}
           <ActivityOverview groups={shown} call={callService} />
+          <ConsumerRanking ids={config ? config.consumerEntityIds ?? [] : ["sensor.waermepumpe_energie", "sensor.trockner_energie", "sensor.kuehlschrank_energie"]} states={states} price={price} load={fetchConsumerUsage} onSettings={() => setOpen(true)} />
           {g.sensors.length > 0 && (
             <Section title="Temperatur & Luftfeuchte">
               <div className="grid gap-3 md:grid-cols-2">
@@ -221,6 +223,7 @@ function Dashboard() {
         open={open}
         onOpenChange={setOpen}
         config={config}
+        states={states}
         style={style}
         onStyleChange={(value) => { setStyle(value); saveDashboardStyle(value); }}
         price={price}

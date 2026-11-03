@@ -2,7 +2,9 @@ import { useState } from "react";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import type { HaConfig } from "@/lib/ha";
+import type { HaConfig, HassEntity } from "@/lib/ha";
+import { Checkbox } from "@/components/ui/checkbox";
+import { consumerMeters } from "@/lib/ha-consumers";
 import { dashboardStyles, type DashboardStyle } from "@/lib/dashboard-appearance";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
@@ -15,6 +17,7 @@ export function SettingsDialog({
   onStyleChange,
   price,
   onPriceChange,
+  states,
 }: {
   open: boolean;
   onOpenChange: (o: boolean) => void;
@@ -24,6 +27,7 @@ export function SettingsDialog({
   onStyleChange: (style: DashboardStyle) => void;
   price: number;
   onPriceChange: (price: number) => void;
+  states: Record<string, HassEntity>;
 }) {
   const [url, setUrl] = useState(config?.url ?? "http://homeassistant.local:8123");
   const [token, setToken] = useState(config?.token ?? "");
@@ -31,6 +35,8 @@ export function SettingsDialog({
   const [powerEntity, setPowerEntity] = useState(config?.powerEntity ?? "");
   const [todayEntity, setTodayEntity] = useState(config?.todayEntity ?? "");
   const [monthEntity, setMonthEntity] = useState(config?.monthEntity ?? "");
+  const [consumerIds, setConsumerIds] = useState(config?.consumerEntityIds ?? []);
+  const meters = consumerMeters(states);
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-h-[90dvh] overflow-y-auto">
@@ -100,6 +106,17 @@ export function SettingsDialog({
             für automatische Erkennung.
           </p>
         </div>
+        <div className="flex flex-col gap-3 border-t border-border pt-4">
+          <p className="text-sm">Größte Verbraucher · Zählerauswahl</p>
+          <div className="max-h-52 space-y-3 overflow-y-auto">
+            {[...new Set([...meters.map(e => e.entity_id), ...consumerIds])].map(id => <label key={id} className="flex items-start gap-3 text-sm">
+              <Checkbox aria-label={String(states[id]?.attributes.friendly_name ?? id)} checked={consumerIds.includes(id)} onCheckedChange={checked => setConsumerIds(current => checked === true ? [...new Set([...current, id])] : current.filter(value => value !== id))} />
+              <span className="min-w-0 break-words">{states[id]?.attributes.friendly_name ?? id}<span className="block break-all text-xs text-muted-foreground">{id}</span></span>
+            </label>)}
+            {!meters.length && !consumerIds.length && <p className="text-xs text-muted-foreground">Keine Energiezähler mit Verbrauchsstatistik gefunden.</p>}
+          </div>
+          <p className="text-xs text-muted-foreground">Je Gerät einen Energiezähler auswählen, keine Haus-, PV- oder Summenzähler. Auswahl wird mit „Verbinden“ gespeichert.</p>
+        </div>
         <div className="flex justify-between gap-2 pt-2">
           <Button variant="ghost" onClick={() => { onSave(null); onOpenChange(false); }}>
             Demo-Modus
@@ -113,6 +130,7 @@ export function SettingsDialog({
                 ...(powerEntity.trim() ? { powerEntity: powerEntity.trim() } : {}),
                 ...(todayEntity.trim() ? { todayEntity: todayEntity.trim() } : {}),
                 ...(monthEntity.trim() ? { monthEntity: monthEntity.trim() } : {}),
+                consumerEntityIds: consumerIds,
               });
               onOpenChange(false);
             }}

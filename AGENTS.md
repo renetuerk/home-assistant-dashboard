@@ -18,3 +18,4 @@
 - Select dashboard devices through the shared registry-aware selector; omit infrastructure/configuration switches and prefer covers over same-device relay switches so garage controls use cover services.
 - Cameras use periodically refreshed Home Assistant still-image URLs restricted to its origin; never put long-lived login tokens in image URLs or attempt native RTSP playback in the browser.
 - Forecasts use Home Assistant weather service responses; daily household consumption uses Recorder daily energy changes in kWh for seven completed local calendar days, so meter resets are handled by Home Assistant and missing statistics are never shown as zero.
+- Consumer rankings use explicitly selected per-device energy meters and a batched Recorder query for the same seven completed days; rank only complete coverage to avoid misleading comparisons and never infer energy from instantaneous power.
