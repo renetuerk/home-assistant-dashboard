@@ -10,7 +10,7 @@ export type HassEntity = {
   last_changed?: string;
 };
 
-export type HaConfig = { url: string; token: string; pvEntity?: string; powerEntity?: string; todayEntity?: string; monthEntity?: string };
+export type HaConfig = { url: string; token: string; pvEntity?: string; powerEntity?: string; todayEntity?: string; monthEntity?: string; consumerEntityIds?: string[] };
 export type ConnStatus = "demo" | "connecting" | "connected" | "error";
 
 const KEY = "ha-dashboard-config";
@@ -190,6 +190,20 @@ export function useHomeAssistant(config: HaConfig | null) {
     return dailyUsage(result[entityId] ?? []);
   }, [status, request]);
 
+  const fetchConsumerUsage = useCallback(async (entityIds: string[]): Promise<Record<string, DailyUsage[]>> => {
+    const ids = [...new Set(entityIds)];
+    if (!ids.length) return {};
+    const { start, end, days } = energyWindow();
+    if (status === "demo") {
+      const factors: Record<string, number> = { "sensor.waermepumpe_energie": 4.2, "sensor.trockner_energie": 1.6, "sensor.kuehlschrank_energie": 0.7 };
+      return Object.fromEntries(ids.map(id => [id, days.map((day, i) => ({ start: day, kwh: factors[id] == null ? null : Math.round((factors[id] ?? 0) * (0.8 + i * 0.06) * 100) / 100 }))]));
+    }
+    if (status !== "connected") throw new Error("Keine Verbindung");
+    const result = await request({ type: "recorder/statistics_during_period", start_time: start.toISOString(), end_time: new Date(end.getTime() - 1).toISOString(), statistic_ids: ids, period: "day", types: ["change"], units: { energy: "kWh" } });
+    if (!result) throw new Error("Verbrauchsstatistik nicht verfügbar");
+    return Object.fromEntries(ids.map(id => [id, dailyUsage(result[id] ?? [])]));
+  }, [status, request]);
+
   const callService = useCallback(
     (domain: string, service: string, data: any) => {
       const ws = wsRef.current;
@@ -231,7 +245,7 @@ export function useHomeAssistant(config: HaConfig | null) {
     [status],
   );
 
-  return { states, areas, registry, status, error, callService, fetchHistory, fetchForecast, fetchDailyUsage };
+  return { states, areas, registry, status, error, callService, fetchHistory, fetchForecast, fetchDailyUsage, fetchConsumerUsage };
 }
 
 /** Maps entity_id → area name, using the entity's own area or its device's area. */
