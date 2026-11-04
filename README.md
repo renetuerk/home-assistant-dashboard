@@ -6,8 +6,10 @@ Zugangs-Token, beides bleibt nur im Browser des Tablets gespeichert).
 
 ## Voraussetzung
 
-- Docker Desktop auf dem MacBook (https://www.docker.com/products/docker-desktop/)
+- Docker Desktop (https://www.docker.com/products/docker-desktop/) auf dem Mac, unter Windows oder Linux
 - Home Assistant im selben Netzwerk
+
+Die Anleitung nennt macOS-Befehle; die Abschnitte „IP herausfinden" unten zeigen die Entsprechungen für Windows und Linux.
 
 ## 1. Code aufs MacBook holen
 
@@ -36,6 +38,10 @@ Mac-IP herausfinden:
 ```sh
 ipconfig getifaddr en0
 ```
+
+**Windows** (Eingabeaufforderung): `ipconfig` – die Adresse hinter „IPv4-Adresse" verwenden.
+
+**Linux:** `hostname -I` – die erste Adresse verwenden.
 
 Auf dem Tablet `http://<Mac-IP>:3000` öffnen – unbedingt mit `http://`, sonst kann der
 Browser keine Verbindung zum lokalen Home Assistant herstellen.
