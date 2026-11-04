@@ -136,7 +136,7 @@ docker compose restart        # neu starten
 docker compose down           # stoppen
 ```
 
-Damit das Dashboard nach einem Neustart des MacBooks automatisch wieder läuft, in
+Damit das Dashboard nach einem Neustart des Rechners automatisch wieder läuft, in
 Docker Desktop „Start Docker Desktop when you sign in to your computer“ aktivieren
 und den Rechner nicht in den Ruhezustand versetzen (oder die IP im Router fest
 vergeben, damit sich die Adresse des Tablets nicht ändert).
