@@ -193,15 +193,17 @@ export function useHomeAssistant(config: HaConfig | null) {
   const fetchConsumerUsage = useCallback(async (entityIds: string[]): Promise<Record<string, DailyUsage[]>> => {
     const ids = [...new Set(entityIds)];
     if (!ids.length) return {};
-    const { start, end, days } = energyWindow();
+    const now = new Date();
+    const { start, end, days } = energyWindow(now, 14);
     if (status === "demo") {
       const factors: Record<string, number> = { "sensor.waermepumpe_energie": 4.2, "sensor.trockner_energie": 1.6, "sensor.kuehlschrank_energie": 0.7 };
-      return Object.fromEntries(ids.map(id => [id, days.map((day, i) => ({ start: day, kwh: factors[id] == null ? null : Math.round((factors[id] ?? 0) * (0.8 + i * 0.06) * 100) / 100 }))]));
+      const previousFactors: Record<string, number> = { "sensor.waermepumpe_energie": 0.8, "sensor.trockner_energie": 1.25, "sensor.kuehlschrank_energie": 1 };
+      return Object.fromEntries(ids.map(id => [id, days.map((day, i) => ({ start: day, kwh: factors[id] == null ? null : Math.round((factors[id] ?? 0) * (0.8 + (i % 7) * 0.06) * (i < 7 ? previousFactors[id] ?? 1 : 1) * 100) / 100 }))]));
     }
     if (status !== "connected") throw new Error("Keine Verbindung");
     const result = await request({ type: "recorder/statistics_during_period", start_time: start.toISOString(), end_time: new Date(end.getTime() - 1).toISOString(), statistic_ids: ids, period: "day", types: ["change"], units: { energy: "kWh" } });
     if (!result) throw new Error("Verbrauchsstatistik nicht verfügbar");
-    return Object.fromEntries(ids.map(id => [id, dailyUsage(result[id] ?? [])]));
+    return Object.fromEntries(ids.map(id => [id, dailyUsage(result[id] ?? [], now, 14)]));
   }, [status, request]);
 
   const callService = useCallback(

@@ -10,7 +10,15 @@ export function consumerMeters(states: Record<string, HassEntity>) {
 
 export function rankConsumers(ids: string[], usage: Record<string, DailyUsage[]>) {
   return [...new Set(ids)].map((id) => {
-    const values = (usage[id] ?? []).flatMap((day) => day.kwh != null && Number.isFinite(day.kwh) && day.kwh >= 0 ? [day.kwh] : []);
+    const values = (usage[id] ?? []).slice(-7).flatMap((day) => day.kwh != null && Number.isFinite(day.kwh) && day.kwh >= 0 ? [day.kwh] : []);
     return { id, days: values.length, kwh: values.length === 7 ? values.reduce((sum, value) => sum + value, 0) : null };
   }).sort((a, b) => (b.kwh ?? -1) - (a.kwh ?? -1));
+}
+
+export function compareConsumerUsage(days: DailyUsage[]) {
+  const current = rankConsumers(["meter"], { meter: days })[0]?.kwh ?? null;
+  const previous = rankConsumers(["meter"], { meter: days.slice(-14, -7) })[0]?.kwh ?? null;
+  const delta = current != null && previous != null ? current - previous : null;
+  const percent = delta != null && previous != null && previous > 0 ? delta / previous * 100 : null;
+  return { previous, delta, percent };
 }

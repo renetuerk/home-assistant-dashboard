@@ -3,11 +3,11 @@ export type ForecastPoint = { datetime: string; condition: string; temperature: 
 export type DailyUsage = { start: number; kwh: number | null };
 
 /** Calendar days, not fixed 24-hour intervals (daylight saving time). */
-export function energyWindow(now = new Date()) {
+export function energyWindow(now = new Date(), count = 7) {
   const end = new Date(now.getFullYear(), now.getMonth(), now.getDate());
   const start = new Date(end);
-  start.setDate(start.getDate() - 7);
-  const days = Array.from({ length: 7 }, (_, i) => {
+  start.setDate(start.getDate() - count);
+  const days = Array.from({ length: count }, (_, i) => {
     const day = new Date(start);
     day.setDate(day.getDate() + i);
     return day.getTime();
@@ -15,8 +15,8 @@ export function energyWindow(now = new Date()) {
   return { start, end, days };
 }
 
-export function dailyUsage(rows: { start: number | string; change?: number | null }[], now = new Date()): DailyUsage[] {
-  const { days } = energyWindow(now);
+export function dailyUsage(rows: { start: number | string; change?: number | null }[], now = new Date(), count = 7): DailyUsage[] {
+  const { days } = energyWindow(now, count);
   return days.map((start) => {
     const row = rows.find((r) => {
       const t = typeof r.start === "number" ? (r.start < 1e12 ? r.start * 1000 : r.start) : Date.parse(r.start);
