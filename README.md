@@ -29,7 +29,7 @@ Ordner wechseln.
 docker compose up -d --build
 ```
 
-Das Dashboard läuft danach auf Port 3000.
+Das Dashboard läuft danach auf Port 3002 (im Container bleibt der interne Port 3000).
 
 ## 3. Auf dem Tablet öffnen
 
@@ -43,7 +43,7 @@ ipconfig getifaddr en0
 
 **Linux:** `hostname -I` – die erste Adresse verwenden.
 
-Auf dem Tablet `http://<Mac-IP>:3000` öffnen – unbedingt mit `http://`, sonst kann der
+Auf dem Tablet `http://<Mac-IP>:3002` öffnen – unbedingt mit `http://`, sonst kann der
 Browser keine Verbindung zum lokalen Home Assistant herstellen.
 
 **Wichtig in Docker Desktop:** Einstellungen → General → „Allow HTTPS-only connections“
