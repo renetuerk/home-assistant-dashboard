@@ -24,6 +24,16 @@ describe("seven-day household consumption", () => {
     expect(dailyUsage([{ start: new Date(start).toISOString(), change: 12.1 }], now)[0]?.kwh).toBe(12.1);
     expect(dailyUsage([{ start: start / 1000, change: 12.1 }], now)[0]?.kwh).toBe(12.1);
   });
+  it("loads fourteen completed calendar days for adjacent seven-day comparisons", () => {
+    const window = energyWindow(now, 14);
+    expect(window.days).toHaveLength(14);
+    expect(window.start).toEqual(new Date(2026, 9, 18));
+    expect(window.days[7]).toBe(new Date(2026, 9, 25).getTime());
+    expect(window.end).toEqual(new Date(2026, 10, 1));
+    const parsed = dailyUsage(window.days.map(start => ({ start, change: 2 })), now, 14);
+    expect(parsed).toHaveLength(14);
+    expect(parsed.map(day => day.kwh)).toEqual(Array(14).fill(2));
+  });
 });
 
 describe("weather forecast", () => {
