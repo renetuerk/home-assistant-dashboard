@@ -1,9 +1,9 @@
 import { useEffect, useState } from "react";
-import { BarChart3, Settings } from "lucide-react";
+import { ArrowDownRight, ArrowUpRight, BarChart3, Minus, Settings } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import type { HassEntity } from "@/lib/ha";
 import type { DailyUsage } from "@/lib/ha-insights";
-import { rankConsumers } from "@/lib/ha-consumers";
+import { compareConsumerUsage, rankConsumers } from "@/lib/ha-consumers";
 import { energyCost, formatEuro } from "@/lib/energy-costs";
 
 export function ConsumerRanking({ ids, states, price, load, onSettings }: {
@@ -35,17 +35,29 @@ export function ConsumerRanking({ ids, states, price, load, onSettings }: {
   return <section aria-label="Größte Verbraucher" className="tile min-w-0 p-5">
     <div className="mb-4 flex items-center justify-between gap-3">
       <div className="min-w-0"><h2 className="flex items-center gap-2 text-sm"><BarChart3 className="size-4 shrink-0 text-primary" />Größte Verbraucher</h2>
-        <p className="mt-1 text-xs text-muted-foreground">7 abgeschlossene Tage · {fmt(price)} €/kWh</p></div>
+        <p className="mt-1 text-xs text-muted-foreground">7 abgeschlossene Tage · Vergleich zur Vorwoche</p></div>
       <Button variant="ghost" size="icon" aria-label="Verbrauchszähler auswählen" title="Verbrauchszähler auswählen" onClick={onSettings}><Settings className="size-4" /></Button>
     </div>
     {status ? <p role="status" className="text-sm text-muted-foreground">{status}</p> : <ol className="space-y-4">
-      {rows.map((row, i) => <li key={row.id} className="min-w-0">
+      {rows.map((row, i) => {
+        const comparison = compareConsumerUsage(usage[row.id] ?? []);
+        const delta = comparison.delta;
+        const TrendIcon = delta == null || delta === 0 ? Minus : delta > 0 ? ArrowUpRight : ArrowDownRight;
+        const signed = (value: number) => `${value > 0 ? "+" : value < 0 ? "−" : ""}${fmt(Math.abs(value))}`;
+        return <li key={row.id} className="min-w-0">
         <div className="flex items-start justify-between gap-3 text-sm">
           <span className="min-w-0 break-words">{row.kwh != null && <span className="mr-2 text-primary">{i + 1}.</span>}{states[row.id]?.attributes.friendly_name ?? row.id}</span>
           <span className="shrink-0 text-right tabular-nums">{row.kwh == null ? "–" : `${fmt(row.kwh)} kWh`}<span className="block text-xs text-muted-foreground">{row.kwh == null ? `${row.days}/7 Tage verfügbar` : formatEuro(energyCost(row.kwh, price))}</span></span>
         </div>
         {row.kwh != null && <svg viewBox="0 0 300 6" preserveAspectRatio="none" className="mt-2 h-1.5 w-full" role="img" aria-label={`${states[row.id]?.attributes.friendly_name ?? row.id}: ${fmt(row.kwh)} kWh`}><rect width="300" height="6" rx="3" className="fill-muted" /><rect width={row.kwh / max * 300} height="6" rx="3" className={i === 0 ? "fill-primary" : "fill-cool"} /></svg>}
-      </li>)}
+        <div className="mt-2 flex flex-wrap items-center justify-between gap-x-3 gap-y-1 text-xs">
+          <span className="text-muted-foreground">Vorwoche: {comparison.previous == null ? "–" : `${fmt(comparison.previous)} kWh`}</span>
+          <span className={`flex items-center gap-1 tabular-nums ${delta == null || delta === 0 ? "text-muted-foreground" : delta > 0 ? "text-destructive" : "text-success"}`}>
+            <TrendIcon className="size-3.5 shrink-0" aria-hidden="true" />
+            {delta == null ? "Vergleich nicht verfügbar" : delta === 0 ? "Unverändert" : `${signed(delta)} kWh${comparison.percent == null ? " · neu gegenüber 0 kWh" : ` (${signed(comparison.percent)} %)`}`}
+          </span>
+        </div>
+      </li>; })}
     </ol>}
   </section>;
 }

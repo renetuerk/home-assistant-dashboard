@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { consumerMeters, rankConsumers } from "@/lib/ha-consumers";
+import { compareConsumerUsage, consumerMeters, rankConsumers } from "@/lib/ha-consumers";
 import { energyCost } from "@/lib/energy-costs";
 
 describe("largest electricity consumers", () => {
@@ -23,5 +23,28 @@ describe("largest electricity consumers", () => {
   });
   it("uses the configured price for the seven-day cost", () => {
     expect(energyCost(21, 0.4)).toBeCloseTo(8.4);
+  });
+  it("ranks only the latest seven days of a fourteen-day history", () => {
+    expect(rankConsumers(["pump", "dryer"], { pump: [...days(10), ...days(2)], dryer: [...days(1), ...days(3)] })).toEqual([
+      { id: "dryer", days: 7, kwh: 21 }, { id: "pump", days: 7, kwh: 14 },
+    ]);
+  });
+  it("compares the latest seven days with the preceding seven for an increase", () => {
+    expect(compareConsumerUsage([...days(2), ...days(3)])).toEqual({ previous: 14, delta: 7, percent: 50 });
+  });
+  it("reports a decrease relative to the preceding seven days", () => {
+    expect(compareConsumerUsage([...days(4), ...days(3)])).toEqual({ previous: 28, delta: -7, percent: -25 });
+  });
+  it("reports unchanged consumption", () => {
+    expect(compareConsumerUsage([...days(2), ...days(2)])).toEqual({ previous: 14, delta: 0, percent: 0 });
+  });
+  it("does not compare incomplete previous or current weeks", () => {
+    expect(compareConsumerUsage([...days(null), ...days(3)])).toEqual({ previous: null, delta: null, percent: null });
+    expect(compareConsumerUsage([...days(2), ...days(3).slice(0, 6), { start: 6, kwh: null }])).toEqual({ previous: 14, delta: null, percent: null });
+    expect(compareConsumerUsage(days(3))).toEqual({ previous: null, delta: null, percent: null });
+  });
+  it("never invents a percentage when the previous week was zero", () => {
+    expect(compareConsumerUsage([...days(0), ...days(1)])).toEqual({ previous: 0, delta: 7, percent: null });
+    expect(compareConsumerUsage([...days(0), ...days(0)])).toEqual({ previous: 0, delta: 0, percent: null });
   });
 });

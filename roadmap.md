@@ -10,4 +10,5 @@
 - [x] Berechnungen testen, Anzeige prüfen und Anleitung ergänzen (15 Tests; Demo, schmaler Bildschirm und simulierte HA-Verbindung geprüft; echtes lokales Home Assistant hier nicht erreichbar).
 
 - [x] Rangliste einzelner Stromverbraucher über sieben abgeschlossene Tage ergänzen, Zählerauswahl und Kosten anzeigen.
+- [x] Verbraucher mit den vorherigen sieben Tagen vergleichen (17 Tests, simulierte HA-Abfrage und schmale Anzeige geprüft; echte lokale Messwerte hier nicht erreichbar).
 - [x] Verbrauchsberechnung testen, Anzeige prüfen und Anleitung aktualisieren (13 Tests; Demo, gespeicherte Zählerauswahl, simulierte Recorder-Abfrage und schmaler Bildschirm geprüft; echte lokale Messwerte nicht erreichbar).
