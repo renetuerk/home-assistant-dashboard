@@ -3,7 +3,7 @@ import type { ConnStatus, HassEntity } from "@/lib/ha";
 import { cameraArmingEntity, cameraArmingStatus } from "@/lib/ha-camera-status";
 import { cn } from "@/lib/utils";
 
-export function CameraArmingIndicator({ states, selected, connection }: { states: Record<string, HassEntity>; selected?: string; connection: ConnStatus }) {
+export function CameraArmingIndicator({ states, selected, connection }: { states: Record<string, HassEntity>; selected?: string | undefined; connection: ConnStatus }) {
   const entity = cameraArmingEntity(states, selected);
   const status = connection === "demo" || connection === "connected" ? cameraArmingStatus(entity) : "unknown";
   const presentation = {
