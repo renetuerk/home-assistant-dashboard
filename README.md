@@ -77,7 +77,7 @@ Namen wie „PV“, „Solar“, „Wechselrichter“ bzw. „Haus“, „Verbra
 - **Status unbekannt:** Geräte, die Home Assistant gerade nicht erreicht
 - **Inaktiv & ausgeschaltet:** einklappbar, darunter alle ausgeschalteten Geräte
 - **Immer sichtbar:** Temperatur & Luftfeuchte, Wetter, Energie
-- **Kamerastatus oben:** zeigt „Scharf geschaltet“, „Nicht scharf geschaltet“, Übergänge oder Alarm. Unter „Kameras · Scharfschaltungsstatus“ die passende Alarm-Entität oder einen Scharfschaltungsschalter eintragen und mit „Verbinden“ speichern (Schalter an = scharf, aus = unscharf). Leer wird nur eine eindeutig kamera-bezogene `alarm_control_panel`-Entität automatisch erkannt. Fehlende, mehrdeutige oder nicht erreichbare Statusdaten erscheinen als „Status unbekannt“; `camera.*`-Zustände wie `idle` sagen nichts über Scharfschaltung aus. Im Demo-Modus ist der Status ein Beispiel.
+- **Kamerastatus oben:** zeigt „Bewegung“ oder „Keine Bewegung“. Unter „Kameras · Bewegungssensor“ den passenden `binary_sensor` aus Home Assistant eintragen und mit „Verbinden“ speichern: `on` = Bewegung, `off` = keine Bewegung. Leer wird nur ein eindeutig kamera-bezogener Bewegungssensor automatisch erkannt. Fehlende, mehrdeutige oder nicht erreichbare Daten erscheinen als „Status unbekannt“. Die bisherige Scharfschaltungsquelle wird nicht als Bewegungssensor übernommen. Im Demo-Modus ist der Status ein Beispiel.
 - Rauchmelder erscheinen automatisch, wenn sie in Home Assistant als „Rauch“ eingestuft sind.
 - **Anwesenheit:** zeigt pro Person in Home Assistant, ob sie zu Hause oder unterwegs ist (bzw. in welcher Zone).
 - **Stromkosten:** unter „Energie“ die Kosten für heute und den Monat. Grundlage sind die Verbrauchs-Sensoren (kWh) und der Strompreis, den du in den Dashboard-Einstellungen in €/kWh einträgst. Der Preis bleibt auf diesem Gerät gespeichert – unabhängig von der Verbindung. Für den Monat braucht es einen Sensor mit „Monat“ im Namen (z. B. `sensor.energie_monat`).
@@ -104,7 +104,7 @@ gilt das nur bei identischen IDs hinter dem Punkt (Groß-/Kleinschreibung wird i
 
 ### Kameras
 
-Kamerabilder bleiben ausgeblendet. Oben erscheint ausschließlich der Scharfschaltungsstatus
+Kamerabilder bleiben ausgeblendet. Oben erscheint ausschließlich der Bewegungsstatus
 aus Home Assistant; es werden keine Bilder oder RTSP-Streams abgerufen.
 
 ## Änderungen übernehmen
