@@ -10,7 +10,7 @@ export type HassEntity = {
   last_changed?: string;
 };
 
-export type HaConfig = { url: string; token: string; pvEntity?: string; powerEntity?: string; todayEntity?: string; monthEntity?: string; consumerEntityIds?: string[] };
+export type HaConfig = { url: string; token: string; pvEntity?: string; powerEntity?: string; todayEntity?: string; monthEntity?: string; consumerEntityIds?: string[]; cameraArmingEntity?: string };
 export type ConnStatus = "demo" | "connecting" | "connected" | "error";
 
 const KEY = "ha-dashboard-config";

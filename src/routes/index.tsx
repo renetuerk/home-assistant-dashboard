@@ -23,6 +23,7 @@ import { ConsumerRanking } from "@/components/dashboard/ConsumerRanking";
 import { NightClock, SmokeAlarmOverlay } from "@/components/dashboard/Overlays";
 import { cn } from "@/lib/utils";
 import { dashboardDevices } from "@/lib/ha-devices";
+import { CameraArmingIndicator } from "@/components/dashboard/CameraArmingIndicator";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -149,6 +150,7 @@ function Dashboard() {
           <p className="mt-2 text-muted-foreground">
             {lightsOn} {lightsOn === 1 ? "Licht ist" : "Lichter sind"} an · {openSec === 0 ? "Alles geschlossen" : `${openSec} offen`} · {smokeAlarm === 0 ? "Rauchmelder bereit" : `Rauchalarm: ${smokeAlarm}`}
           </p>
+          <CameraArmingIndicator states={states} selected={config?.cameraArmingEntity} connection={status} />
         </div>
         <div className="flex items-center gap-6">
           <span className="font-display text-6xl font-light tabular-nums lg:text-7xl">

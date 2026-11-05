@@ -76,7 +76,8 @@ Namen wie „PV“, „Solar“, „Wechselrichter“ bzw. „Haus“, „Verbra
 - **Jetzt aktiv:** alles, was gerade eingeschaltet, offen, entriegelt, heizt oder Alarm meldet
 - **Status unbekannt:** Geräte, die Home Assistant gerade nicht erreicht
 - **Inaktiv & ausgeschaltet:** einklappbar, darunter alle ausgeschalteten Geräte
-- **Immer sichtbar:** Temperatur & Luftfeuchte, Kameras, Wetter, Energie
+- **Immer sichtbar:** Temperatur & Luftfeuchte, Wetter, Energie
+- **Kamerastatus oben:** zeigt „Scharf geschaltet“, „Nicht scharf geschaltet“, Übergänge oder Alarm. Unter „Kameras · Scharfschaltungsstatus“ die passende Alarm-Entität oder einen Scharfschaltungsschalter eintragen und mit „Verbinden“ speichern (Schalter an = scharf, aus = unscharf). Leer wird nur eine eindeutig kamera-bezogene `alarm_control_panel`-Entität automatisch erkannt. Fehlende, mehrdeutige oder nicht erreichbare Statusdaten erscheinen als „Status unbekannt“; `camera.*`-Zustände wie `idle` sagen nichts über Scharfschaltung aus. Im Demo-Modus ist der Status ein Beispiel.
 - Rauchmelder erscheinen automatisch, wenn sie in Home Assistant als „Rauch“ eingestuft sind.
 - **Anwesenheit:** zeigt pro Person in Home Assistant, ob sie zu Hause oder unterwegs ist (bzw. in welcher Zone).
 - **Stromkosten:** unter „Energie“ die Kosten für heute und den Monat. Grundlage sind die Verbrauchs-Sensoren (kWh) und der Strompreis, den du in den Dashboard-Einstellungen in €/kWh einträgst. Der Preis bleibt auf diesem Gerät gespeichert – unabhängig von der Verbindung. Für den Monat braucht es einen Sensor mit „Monat“ im Namen (z. B. `sensor.energie_monat`).
@@ -101,22 +102,10 @@ stehen unter „Jetzt aktiv“, geschlossene im einklappbaren Bereich. Relais-Sc
 selben Home-Assistant-Gerät werden zugunsten des Covers ausgeblendet; ohne Gerätezuordnung
 gilt das nur bei identischen IDs hinter dem Punkt (Groß-/Kleinschreibung wird ignoriert).
 
-### Kameras (auch RTSP / nur bei Bedarf)
+### Kameras
 
-Alle sichtbaren `camera.*`-Entitäten bleiben im Kamerabereich, auch bei `idle` oder
-vorübergehender Nichterreichbarkeit. Das Dashboard ruft das von Home Assistant bereitgestellte
-Kamerabild beim Öffnen und anschließend alle zehn Sekunden ab; der Pfeilkreis aktualisiert
-manuell. Bei einem Fehler bleibt das letzte erfolgreiche Bild mit Kennzeichnung sichtbar.
-In einem ausgeblendeten Browser-Tab pausieren neue Abrufe.
-
-Das sind **regelmäßig aktualisierte Einzelbilder, kein flüssiges Livevideo**.
-Der Browser kann `rtsp://` nicht direkt wiedergeben. Die RTSP-Kamera muss in Home Assistant
-eingebunden sein und dort ein Kamerabild (`entity_picture`) liefern. Stellt die Integration
-nur einen Stream, aber kein Einzelbild bereit, ist zusätzlich eine passende Kamera-/Stream-
-Konfiguration in Home Assistant erforderlich; ein Dashboard-Update allein löst das nicht.
-Home Assistant muss vom Tablet erreichbar sein. Der langlebige Anmelde-Token wird nicht
-in Bildadressen eingefügt; verwendet wird ausschließlich die von Home Assistant gelieferte
-Kamera-Bildadresse mit ihrem Kamera-Token.
+Kamerabilder bleiben ausgeblendet. Oben erscheint ausschließlich der Scharfschaltungsstatus
+aus Home Assistant; es werden keine Bilder oder RTSP-Streams abgerufen.
 
 ## Änderungen übernehmen
 

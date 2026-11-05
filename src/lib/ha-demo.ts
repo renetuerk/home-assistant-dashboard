@@ -63,6 +63,7 @@ const list: HassEntity[] = [
   e("binary_sensor.rauchmelder_schlafzimmer", "off", { friendly_name: "Rauchmelder Schlafzimmer", device_class: "smoke", battery_level: 78 }),
   e("binary_sensor.rauchmelder_gäste_wc", "off", { friendly_name: "Rauchmelder Gäste-WC", device_class: "smoke" }),
   e("alarm_control_panel.alarm", "disarmed", { friendly_name: "Alarmanlage" }),
+  e("alarm_control_panel.kameras", "armed_away", { friendly_name: "Kameras" }),
 ];
 
 export const demoStates: Record<string, HassEntity> = Object.fromEntries(list.map((x) => [x.entity_id, x]));
