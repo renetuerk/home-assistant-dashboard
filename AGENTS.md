@@ -19,3 +19,4 @@
 - Cameras use periodically refreshed Home Assistant still-image URLs restricted to its origin; never put long-lived login tokens in image URLs or attempt native RTSP playback in the browser.
 - Forecasts use Home Assistant weather service responses; daily household consumption uses Recorder daily energy changes in kWh for seven completed local calendar days, so meter resets are handled by Home Assistant and missing statistics are never shown as zero.
 - Consumer rankings use explicitly selected per-device energy meters and one batched Recorder query for fourteen completed local calendar days; rank the latest seven and compare with the preceding seven only when each period is complete, avoiding misleading partial totals or estimates from instantaneous power.
+- Camera arming uses a selected status entity or a unique camera-specific alarm panel; camera idle/streaming and disconnected states never imply protection is armed or disarmed.
