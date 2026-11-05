@@ -1,0 +1,43 @@
+name: Deploy Dashboard
+
+on:
+  push:
+    branches:
+      - main
+
+concurrency:
+  group: dashboard-deployment
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    name: Deploy Dashboard to Mac
+    runs-on: self-hosted
+
+    steps:
+      - name: Deploy Dashboard
+        run: |
+          cd ~/home-assistant-dashboard
+
+          echo "=== GitHub Stand holen ==="
+          git fetch origin
+          git reset --hard origin/main
+
+          echo "=== Docker Dashboard bauen und starten ==="
+          docker compose up -d --build --remove-orphans
+
+          echo "=== Dashboard Healthcheck ==="
+
+          for i in {1..30}; do
+            if curl -fsS http://localhost:3002 >/dev/null 2>&1; then
+              echo "Dashboard ist erreichbar."
+              exit 0
+            fi
+
+            echo "Warte auf Dashboard... ($i/30)"
+            sleep 2
+          done
+
+          echo "FEHLER: Dashboard ist nicht erreichbar."
+          docker compose ps
+          exit 1
