@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import type { HaConfig, HassEntity } from "@/lib/ha";
 import { Checkbox } from "@/components/ui/checkbox";
 import { consumerMeters } from "@/lib/ha-consumers";
-import { cameraArmingCandidates } from "@/lib/ha-camera-status";
+import { cameraMotionCandidates } from "@/lib/ha-camera-motion";
 import { dashboardStyles, type DashboardStyle } from "@/lib/dashboard-appearance";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
@@ -37,7 +37,7 @@ export function SettingsDialog({
   const [todayEntity, setTodayEntity] = useState(config?.todayEntity ?? "");
   const [monthEntity, setMonthEntity] = useState(config?.monthEntity ?? "");
   const [consumerIds, setConsumerIds] = useState(config?.consumerEntityIds ?? []);
-  const [cameraArmingEntity, setCameraArmingEntity] = useState(config?.cameraArmingEntity ?? "");
+  const [cameraMotionEntity, setCameraMotionEntity] = useState(config?.cameraMotionEntity ?? "");
   const meters = consumerMeters(states);
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -86,10 +86,9 @@ export function SettingsDialog({
           </label>
         </div>
         <div className="flex flex-col gap-3 border-t border-border pt-4">
-          <label htmlFor="camera-arming-entity" className="text-sm">Kameras · Scharfschaltungsstatus</label>
-          <Input id="camera-arming-entity" list="camera-arming-options" value={cameraArmingEntity} onChange={e => setCameraArmingEntity(e.target.value)} placeholder="z. B. alarm_control_panel.kameras" />
-          <datalist id="camera-arming-options">{cameraArmingCandidates(states).map(e => <option key={e.entity_id} value={e.entity_id}>{e.attributes.friendly_name ?? e.entity_id}</option>)}</datalist>
-          <p className="text-xs text-muted-foreground">Alarm-Entität oder Schalter für die Scharfschaltung. Bei Schaltern bedeutet „an“ scharf. Leer: automatische Erkennung einer eindeutig benannten Kamera-Alarmanlage.</p>
+          <label htmlFor="camera-motion-entity" className="text-sm">Kameras · Bewegungssensor</label>
+          <Input id="camera-motion-entity" list="camera-motion-options" value={cameraMotionEntity} onChange={e => setCameraMotionEntity(e.target.value)} placeholder="z. B. binary_sensor.kamera_bewegung" />
+          <datalist id="camera-motion-options">{cameraMotionCandidates(states).map(e => <option key={e.entity_id} value={e.entity_id}>{e.attributes.friendly_name ?? e.entity_id}</option>)}</datalist>
         </div>
         <div className="flex flex-col gap-3 border-t border-border pt-4">
           <p className="text-xs uppercase tracking-widest text-muted-foreground">Energie-Sensoren (optional)</p>
@@ -138,7 +137,7 @@ export function SettingsDialog({
                 ...(powerEntity.trim() ? { powerEntity: powerEntity.trim() } : {}),
                 ...(todayEntity.trim() ? { todayEntity: todayEntity.trim() } : {}),
                 ...(monthEntity.trim() ? { monthEntity: monthEntity.trim() } : {}),
-                ...(cameraArmingEntity.trim() ? { cameraArmingEntity: cameraArmingEntity.trim() } : {}),
+                ...(cameraMotionEntity.trim() ? { cameraMotionEntity: cameraMotionEntity.trim() } : {}),
                 consumerEntityIds: consumerIds,
               });
               onOpenChange(false);
