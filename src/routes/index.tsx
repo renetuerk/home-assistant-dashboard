@@ -71,6 +71,7 @@ function Dashboard() {
   const [dragId, setDragId] = useState<WidgetId | null>(null);
   const [kiosk, setKiosk] = useState(false);
   const [notify, setNotify] = useState(false);
+  const [notifyMessage, setNotifyMessage] = useState("");
   useEffect(() => {
     setLayout(loadLayout());
     setKiosk(loadKiosk());
@@ -86,9 +87,36 @@ function Dashboard() {
     void setFullscreen(on);
   };
   const toggleNotify = async () => {
-    const on = !notify && (await requestNotifications());
+    setNotifyMessage("");
+    if (!notificationsSupported()) {
+      setNotifyMessage(
+        "Dieser Browser unterstützt keine Benachrichtigungen. Installiere das Dashboard als App oder verwende einen unterstützten Browser.",
+      );
+      return;
+    }
+    if (notify) {
+      setNotify(false);
+      saveNotificationsEnabled(false);
+      setNotifyMessage("Benachrichtigungen ausgeschaltet.");
+      return;
+    }
+    const on = await requestNotifications();
     setNotify(on);
     saveNotificationsEnabled(on);
+    if (on) {
+      setNotifyMessage("Benachrichtigungen aktiviert. Eine Testbenachrichtigung wurde gesendet.");
+      void showAlert({
+        id: "notifications-enabled",
+        title: "Benachrichtigungen aktiviert",
+        body: "Testbenachrichtigung – Rauch-, Alarm- und Kamerabewegungen werden gemeldet.",
+      });
+    } else {
+      setNotifyMessage(
+        Notification.permission === "denied"
+          ? "Benachrichtigungen sind blockiert. Erlaube sie in den Website-Einstellungen deines Browsers."
+          : "Benachrichtigungen konnten nicht aktiviert werden.",
+      );
+    }
   };
   useEffect(() => {
     // Keep the wall tablet screen awake while the dashboard is open.
@@ -231,7 +259,7 @@ function Dashboard() {
           </p>
           <CameraMotionIndicator states={states} selected={config?.cameraMotionEntity} connection={status} />
         </div>
-        <div className="flex items-center gap-6">
+        <div className="flex flex-wrap items-center justify-end gap-3 sm:gap-6">
           <span className="font-display text-6xl font-light tabular-nums lg:text-7xl">
             {now?.toLocaleTimeString("de-DE", { hour: "2-digit", minute: "2-digit" }) ?? "--:--"}
           </span>
@@ -239,11 +267,9 @@ function Dashboard() {
             <Button variant="ghost" size="icon" aria-label={editing ? "Anordnen beenden" : "Layout anordnen"} title={editing ? "Fertig" : "Layout anordnen"} onClick={() => setEditing((v) => !v)} className="tile size-11">
               {editing ? <Check /> : <LayoutGrid />}
             </Button>
-            {notificationsSupported() && (
-              <Button variant="ghost" size="icon" aria-label={notify ? "Benachrichtigungen ausschalten" : "Benachrichtigungen einschalten"} aria-pressed={notify} title="Benachrichtigungen bei Rauch-, Alarm- und Kamerabewegung (nur solange das Dashboard geöffnet ist)" onClick={() => void toggleNotify()} className="tile size-11">
-                {notify ? <Bell className="text-primary" /> : <BellOff />}
-              </Button>
-            )}
+            <Button variant="ghost" size="icon" aria-label={notify ? "Benachrichtigungen ausschalten" : "Benachrichtigungen einschalten"} aria-pressed={notify} title={notificationsSupported() ? "Benachrichtigungen bei Rauch-, Alarm- und Kamerabewegung (nur solange das Dashboard geöffnet ist)" : "Dieser Browser unterstützt keine Benachrichtigungen"} onClick={() => void toggleNotify()} className="tile size-11">
+              {notify ? <Bell className="text-primary" /> : <BellOff />}
+            </Button>
           </>}
           <Button variant="ghost" size="icon" aria-label={kiosk ? "Kiosk-Modus beenden" : "Kiosk-Modus starten"} title={kiosk ? "Kiosk-Modus beenden" : "Kiosk-Modus"} onClick={toggleKiosk} className="tile size-11">
             {kiosk ? <Minimize /> : <Maximize />}
@@ -261,6 +287,11 @@ function Dashboard() {
           <span className="text-xs text-muted-foreground tabular-nums">v{DASHBOARD_VERSION}</span>
         </div>
       </header>
+      {notifyMessage && (
+        <p role="status" className="text-sm text-muted-foreground">
+          {notifyMessage}
+        </p>
+      )}
 
       <div className="grid gap-8 lg:grid-cols-12">
         {(["main", "side"] as const).map((column) => (
