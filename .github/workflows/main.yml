@@ -24,7 +24,20 @@ jobs:
           git reset --hard origin/main
 
           echo "=== Docker Dashboard bauen und starten ==="
-          DOCKER_CONFIG="$(mktemp -d)" docker compose up -d --build --remove-orphans
+
+          # Eigene Docker-Konfiguration für den GitHub Runner.
+          # Verhindert den Zugriff auf den macOS-Keychain
+          # durch Docker Desktop im nicht-interaktiven Runner.
+          export DOCKER_CONFIG=/tmp/docker-github-actions
+          mkdir -p "$DOCKER_CONFIG"
+
+          cat > "$DOCKER_CONFIG/config.json" <<'EOF'
+          {
+            "auths": {}
+          }
+          EOF
+
+          docker compose up -d --build --remove-orphans
 
           echo "=== Dashboard Healthcheck ==="
 
