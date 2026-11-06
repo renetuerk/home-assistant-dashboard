@@ -117,6 +117,10 @@ sh update.sh
 
 (entspricht `git pull` und `docker compose up -d --build`), danach die Seite auf dem Tablet neu laden.
 
+Oben rechts steht eine Versionsnummer (z. B. `v1.1`). Sie ist der Deploy-Marker:
+nach jedem Update wird sie in `src/lib/version.ts` erhöht. Erscheint die neue Nummer
+auf dem Tablet, war der Deploy über GitHub erfolgreich.
+
 ## Nützlich
 
 ```sh
