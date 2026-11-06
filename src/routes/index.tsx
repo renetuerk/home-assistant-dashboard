@@ -166,6 +166,7 @@ function Dashboard() {
             {statusLabel}
             <Settings className="size-4 text-muted-foreground" />
           </Button>
+          <span className="text-xs text-muted-foreground tabular-nums">v{DASHBOARD_VERSION}</span>
         </div>
       </header>
 
