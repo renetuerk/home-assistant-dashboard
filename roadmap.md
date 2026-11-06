@@ -13,4 +13,4 @@
 - [x] Verbraucher mit den vorherigen sieben Tagen vergleichen (17 Tests, simulierte HA-Abfrage und schmale Anzeige geprüft; echte lokale Messwerte hier nicht erreichbar).
 - [x] Verbrauchsberechnung testen, Anzeige prüfen und Anleitung aktualisieren (13 Tests; Demo, gespeicherte Zählerauswahl, simulierte Recorder-Abfrage und schmaler Bildschirm geprüft; echte lokale Messwerte nicht erreichbar).
 - [x] Kamerascharfschaltung oben anzeigen und Statusquelle wählbar machen (9 Tests; gespeicherte Auswahl und Live-Wechsel mit simulierter HA-Verbindung geprüft; echte lokale Scharfschaltung hier nicht erreichbar).
-- [ ] Kameraanzeige oben auf Bewegungssensor umstellen und gespeicherte Auswahl sowie Live-Änderung prüfen.
+- [x] Kameraanzeige oben auf Bewegungssensor umstellen (6 Tests; gespeicherte Auswahl, Bewegung/keine Bewegung und fehlende Werte mit simulierter HA-Verbindung geprüft; echter lokaler Sensor hier nicht erreichbar).
