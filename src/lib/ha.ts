@@ -164,6 +164,28 @@ export function useHomeAssistant(config: HaConfig | null) {
     [status, request],
   );
 
+  const fetchStateChanges = useCallback(
+    async (entityIds: string[], hours: number): Promise<Record<string, { t: number; s: string }[]>> => {
+      if (!entityIds.length) return {};
+      if (status !== "connected") {
+        const now = Date.now();
+        return Object.fromEntries(entityIds.map((id, i) => {
+          const s = statesRef.current[id]?.state ?? "unknown";
+          return [id, [{ t: now - (i + 2) * 47 * 60_000, s: s === "on" ? "off" : s === "off" ? "on" : s }, { t: now - (i + 1) * 23 * 60_000, s }]];
+        }));
+      }
+      const res = await request({
+        type: "history/history_during_period",
+        start_time: new Date(Date.now() - hours * 3600_000).toISOString(),
+        entity_ids: entityIds,
+        minimal_response: true,
+        no_attributes: true,
+      });
+      return Object.fromEntries(entityIds.map((id) => [id, ((res?.[id] ?? []) as { s: string; lu: number }[]).map((p) => ({ t: p.lu * 1000, s: p.s }))]));
+    },
+    [status, request],
+  );
+
   const fetchForecast = useCallback(async (entityId: string, mode: ForecastMode): Promise<ForecastPoint[]> => {
     if (status === "demo") {
       return Array.from({ length: mode === "daily" ? 5 : 6 }, (_, i) => {
@@ -247,7 +269,7 @@ export function useHomeAssistant(config: HaConfig | null) {
     [status],
   );
 
-  return { states, areas, registry, status, error, callService, fetchHistory, fetchForecast, fetchDailyUsage, fetchConsumerUsage };
+  return { states, areas, registry, status, error, callService, fetchHistory, fetchStateChanges, fetchForecast, fetchDailyUsage, fetchConsumerUsage };
 }
 
 /** Maps entity_id → area name, using the entity's own area or its device's area. */
