@@ -25,17 +25,10 @@ jobs:
 
           echo "=== Docker Dashboard bauen und starten ==="
 
-          # Eigene Docker-Konfiguration für den GitHub Runner.
-          # Verhindert den Zugriff auf den macOS-Keychain
-          # durch Docker Desktop im nicht-interaktiven Runner.
-          export DOCKER_CONFIG=/tmp/docker-github-actions
-          mkdir -p "$DOCKER_CONFIG"
-
-          cat > "$DOCKER_CONFIG/config.json" <<'EOF'
-          {
-            "auths": {}
-          }
-          EOF
+          # Docker Desktop verwendet normalerweise den macOS-Keychain.
+          # Der GitHub Runner läuft jedoch ohne interaktive Benutzer-Session.
+          # Für öffentliche Docker-Hub-Images werden keine Credentials benötigt.
+          docker logout
 
           docker compose up -d --build --remove-orphans
 
