@@ -24,12 +24,6 @@ jobs:
           git reset --hard origin/main
 
           echo "=== Docker Dashboard bauen und starten ==="
-
-          # Docker Desktop verwendet normalerweise den macOS-Keychain.
-          # Der GitHub Runner läuft jedoch ohne interaktive Benutzer-Session.
-          # Für öffentliche Docker-Hub-Images werden keine Credentials benötigt.
-          docker logout
-
           docker compose up -d --build --remove-orphans
 
           echo "=== Dashboard Healthcheck ==="
