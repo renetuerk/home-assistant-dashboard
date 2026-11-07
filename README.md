@@ -175,3 +175,9 @@ Damit das Dashboard nach einem Neustart des Rechners automatisch wieder läuft, 
 Docker Desktop „Start Docker Desktop when you sign in to your computer“ aktivieren
 und den Rechner nicht in den Ruhezustand versetzen (oder die IP im Router fest
 vergeben, damit sich die Adresse des Tablets nicht ändert).
+
+## KI-Zusammenfassung über Home Assistant
+
+Ist in Home Assistant ein AI Task (z. B. der OpenAI-Integration) eingerichtet, erzeugt das Dashboard die Zusammenfassung über `ai_task.generate_data`; sonst wird der Lovable-Server-Aufruf genutzt. Textantworten werden direkt angezeigt, strukturierte Objekte (`summary`, `largest_consumer`, `largest_consumer_kwh`, `observation`, `recommendation`) zusammengeführt. Leere Antworten zeigen „Keine KI-Zusammenfassung verfügbar.“, Fehler „KI-Zusammenfassung konnte nicht erstellt werden.“ – es werden keine Tokens oder Schlüssel geloggt.
+
+Für die lokale Entwicklung liefert `VITE_USE_AI_TASK_MOCK=true` (nur im Dev-Server/Test, standardmäßig aus) die Beispielantwort, ohne Home Assistant oder OpenAI aufzurufen.

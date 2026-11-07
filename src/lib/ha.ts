@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from "react";
+import { AI_TASK_FAILED, AI_TASK_MOCK_ENABLED, AI_TASK_MOCK_RESPONSE, parseAiTaskResult, type AiTaskOutcome } from "./ai-task-response";
 import { demoAreas, demoStates } from "./ha-demo";
 import type { EntityRegistryEntry } from "./ha-devices";
 import { demoStateHistory, parseStateHistory } from "./activity-history";
@@ -227,12 +228,11 @@ export function useHomeAssistant(config: HaConfig | null) {
     return Object.fromEntries(ids.map(id => [id, dailyUsage(result[id] ?? [], now, 14)]));
   }, [status, request]);
 
-  const generateAiText = useCallback(async (entityId: string, instructions: string, task: string): Promise<string> => {
-    if (status !== "connected") throw new Error("Keine Verbindung");
+  const generateAiText = useCallback(async (entityId: string, instructions: string, task: string): Promise<AiTaskOutcome> => {
+    if (AI_TASK_MOCK_ENABLED) return parseAiTaskResult(AI_TASK_MOCK_RESPONSE);
+    if (status !== "connected") return { error: AI_TASK_FAILED };
     const result = await request({ type: "call_service", domain: "ai_task", service: "generate_data", service_data: { entity_id: entityId, task_name: "Aktivitätszusammenfassung", instructions: `${instructions}\n\n${task}` }, return_response: true });
-    const text = typeof result?.response?.data === "string" ? result.response.data.trim() : "";
-    if (!text) throw new Error("Die Home-Assistant-KI hat keine Zusammenfassung geliefert.");
-    return text;
+    return parseAiTaskResult(result);
   }, [status, request]);
 
   const callService = useCallback(
