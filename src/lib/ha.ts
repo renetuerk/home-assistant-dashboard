@@ -227,6 +227,14 @@ export function useHomeAssistant(config: HaConfig | null) {
     return Object.fromEntries(ids.map(id => [id, dailyUsage(result[id] ?? [], now, 14)]));
   }, [status, request]);
 
+  const generateAiText = useCallback(async (entityId: string, instructions: string, task: string): Promise<string> => {
+    if (status !== "connected") throw new Error("Keine Verbindung");
+    const result = await request({ type: "call_service", domain: "ai_task", service: "generate_data", service_data: { entity_id: entityId, task_name: "Aktivitätszusammenfassung", instructions: `${instructions}\n\n${task}` }, return_response: true });
+    const text = typeof result?.response?.data === "string" ? result.response.data.trim() : "";
+    if (!text) throw new Error("Die Home-Assistant-KI hat keine Zusammenfassung geliefert.");
+    return text;
+  }, [status, request]);
+
   const callService = useCallback(
     (domain: string, service: string, data: any) => {
       const ws = wsRef.current;
@@ -268,7 +276,7 @@ export function useHomeAssistant(config: HaConfig | null) {
     [status],
   );
 
-  return { states, areas, registry, status, error, callService, fetchHistory, fetchStateChanges, fetchForecast, fetchDailyUsage, fetchConsumerUsage };
+  return { states, areas, registry, status, error, callService, fetchHistory, fetchStateChanges, fetchForecast, fetchDailyUsage, fetchConsumerUsage, generateAiText };
 }
 
 /** Maps entity_id → area name, using the entity's own area or its device's area. */

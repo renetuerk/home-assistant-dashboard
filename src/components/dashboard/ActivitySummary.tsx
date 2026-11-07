@@ -8,13 +8,15 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } f
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import type { HassEntity, ConnStatus } from "@/lib/ha";
 import { buildActivityLog, loadAiSensors, saveAiSensors } from "@/lib/activity-log";
+import { SUMMARY_INSTRUCTIONS } from "@/lib/ai-summary-input";
 import { summarizeActivity } from "@/lib/ai-summary.functions";
 
 const DOMAINS = ["binary_sensor", "sensor", "light", "switch", "lock", "cover", "climate", "person", "alarm_control_panel"];
 
-export function ActivitySummary({ states, load, connection }: {
+export function ActivitySummary({ states, load, connection, generate }: {
   states: Record<string, HassEntity>;
   connection: ConnStatus;
+  generate?: (entityId: string, instructions: string, task: string) => Promise<string>;
   load: (ids: string[], hours: number) => Promise<Record<string, { t: number; s: string }[]>>;
 }) {
   const summarize = useServerFn(summarizeActivity);
@@ -45,6 +47,11 @@ export function ActivitySummary({ states, load, connection }: {
         setText("Für die ausgewählten Sensoren sind in diesem Zeitraum keine Verlaufsdaten vorhanden.");
         return;
       }
+      const aiTask = connection === "connected" && generate ? Object.keys(states).find((k) => k.startsWith("ai_task.")) : undefined;
+      if (aiTask && generate) {
+        setText(await generate(aiTask, SUMMARY_INSTRUCTIONS, `Verlaufsdaten der letzten ${h} Stunden (Uhrzeit Name: Zustand):\n${log.join("\n")}`));
+        return;
+      }
       const res = await summarize({ data: { log, hours: h } });
       if (res.error) setError(res.error); else setText(res.text ?? "");
     } catch (err) { setError(err instanceof Error ? err.message : "Zusammenfassung derzeit nicht möglich."); }
@@ -73,7 +80,7 @@ export function ActivitySummary({ states, load, connection }: {
       <DialogContent className="max-h-[90dvh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle className="font-display text-2xl font-normal">Sensoren für die Zusammenfassung</DialogTitle>
-          <DialogDescription>Nur Namen, Zustände und Uhrzeiten dieser Sensoren werden für die Zusammenfassung an Lovable AI geschickt. Der Home-Assistant-Token bleibt auf diesem Gerät.</DialogDescription>
+          <DialogDescription>Nur Namen, Zustände und Uhrzeiten dieser Sensoren werden für die Zusammenfassung an die KI geschickt – bevorzugt über den AI-Task deiner Home-Assistant-Integration, sonst über Lovable AI. Der Home-Assistant-Token bleibt auf diesem Gerät.</DialogDescription>
         </DialogHeader>
         <Input value={filter} onChange={(e) => setFilter(e.target.value)} placeholder="Suchen …" />
         <div className="max-h-[50dvh] space-y-3 overflow-y-auto">
