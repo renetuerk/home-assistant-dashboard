@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { demoAreas, demoStates } from "./ha-demo";
 import type { EntityRegistryEntry } from "./ha-devices";
+import { demoStateHistory, parseStateHistory } from "./activity-history";
 import { dailyUsage, energyWindow, forecastPoints, type DailyUsage, type ForecastMode, type ForecastPoint } from "./ha-insights";
 
 export type HassEntity = {
@@ -167,21 +168,19 @@ export function useHomeAssistant(config: HaConfig | null) {
   const fetchStateChanges = useCallback(
     async (entityIds: string[], hours: number): Promise<Record<string, { t: number; s: string }[]>> => {
       if (!entityIds.length) return {};
-      if (status !== "connected") {
-        const now = Date.now();
-        return Object.fromEntries(entityIds.map((id, i) => {
-          const s = statesRef.current[id]?.state ?? "unknown";
-          return [id, [{ t: now - (i + 2) * 47 * 60_000, s: s === "on" ? "off" : s === "off" ? "on" : s }, { t: now - (i + 1) * 23 * 60_000, s }]];
-        }));
-      }
+      if (status === "demo") return demoStateHistory(entityIds, statesRef.current, hours);
+      if (status !== "connected") throw new Error("Keine Verbindung zu Home Assistant – Aktivitätsverlauf nicht verfügbar.");
+      const end = Date.now();
+      const start = end - hours * 3600_000;
       const res = await request({
         type: "history/history_during_period",
-        start_time: new Date(Date.now() - hours * 3600_000).toISOString(),
+        start_time: new Date(start).toISOString(),
+        end_time: new Date(end).toISOString(),
         entity_ids: entityIds,
         minimal_response: true,
         no_attributes: true,
       });
-      return Object.fromEntries(entityIds.map((id) => [id, ((res?.[id] ?? []) as { s: string; lu: number }[]).map((p) => ({ t: p.lu * 1000, s: p.s }))]));
+      return parseStateHistory(res, entityIds, start, end);
     },
     [status, request],
   );

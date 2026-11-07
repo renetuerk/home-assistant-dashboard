@@ -211,7 +211,7 @@ function Dashboard() {
       </>
     ),
     devices: <ActivityOverview groups={shown} call={callService} />,
-    summary: <ActivitySummary states={states} load={fetchStateChanges} />,
+    summary: <ActivitySummary states={states} load={fetchStateChanges} connection={status} />,
     consumers: <ConsumerRanking ids={config ? config.consumerEntityIds ?? [] : ["sensor.waermepumpe_energie", "sensor.trockner_energie", "sensor.kuehlschrank_energie"]} states={states} price={price} load={fetchConsumerUsage} onSettings={() => setOpen(true)} />,
     "climate-sensors": g.sensors.length > 0 && (
             <Section title="Temperatur & Luftfeuchte">
