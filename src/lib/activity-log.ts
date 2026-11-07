@@ -7,7 +7,9 @@ export function loadAiSensors(): string[] {
   if (typeof window === "undefined") return [];
   try { const v = JSON.parse(localStorage.getItem(KEY) ?? "[]"); return Array.isArray(v) ? v.filter((x) => typeof x === "string") : []; } catch { return []; }
 }
-export function saveAiSensors(ids: string[]) { localStorage.setItem(KEY, JSON.stringify(ids)); }
+export function saveAiSensors(ids: string[]) {
+  try { localStorage.setItem(KEY, JSON.stringify(ids)); } catch { /* Selection remains usable for this session. */ }
+}
 
 /** Chronological, compact log of state changes (only actual changes, newest kept when capped). */
 export function buildActivityLog(
@@ -25,7 +27,7 @@ export function buildActivityLog(
     for (const p of [...points].sort((a, b) => a.t - b.t)) {
       if (p.s === prev) continue;
       prev = p.s;
-      rows.push({ t: p.t, line: `${fmt.format(p.t)} ${name}: ${p.s}${unit}` });
+      rows.push({ t: p.t, line: `${fmt.format(p.t)} ${name}: ${p.s}${unit}`.slice(0, 200) });
     }
   }
   return rows.sort((a, b) => a.t - b.t).slice(-MAX_LOG_LINES).map((r) => r.line);

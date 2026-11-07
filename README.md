@@ -107,6 +107,48 @@ gilt das nur bei identischen IDs hinter dem Punkt (Groß-/Kleinschreibung wird i
 Kamerabilder bleiben ausgeblendet. Oben erscheint ausschließlich der Bewegungsstatus
 aus Home Assistant; es werden keine Bilder oder RTSP-Streams abgerufen.
 
+### „Was war los?“ · KI-Zusammenfassung
+
+1. In der Kachel über das Zahnrad Sensoren auswählen. Die Suche findet sowohl Namen
+   (z. B. „Küchenfenster“) als auch Entitäts-IDs. Die Auswahl wird sofort auf diesem
+   Gerät gespeichert; nicht mehr verfügbare Sensoren lassen sich dort abwählen.
+2. Zeitraum wählen: letzte 1, 3, 6, 12 oder 24 Stunden.
+3. **Zusammenfassen** liest den Verlauf dieser Sensoren aus Home Assistants Recorder
+   und lässt Lovable AI eine kurze deutsche Zusammenfassung erstellen.
+
+An AI Gateway gehen nur Sensorname, Zustand/Messwert und Uhrzeit, keine HA-Adresse
+oder Zugangs-Token. Gleiche aufeinanderfolgende Zustände werden entfernt; höchstens
+300 der jüngsten Einträge mit je maximal 200 Zeichen werden übertragen. Der erste
+Eintrag kann ein Ausgangszustand sein. Die Ausgabe ist keine verlässliche Alarmierung
+und ersetzt keine Rauchmelder oder Sicherheitsmeldungen. Ohne Recorder-Verlauf wird
+„keine Verlaufsdaten“ angezeigt, nicht behauptet, dass im Haus nichts passiert sei.
+Bei Verbindungsfehlern werden keine erfundenen Aktivitäten zusammengefasst.
+
+Im Demo-Modus stammen die Aktivitäten aus Beispieldaten und sind ausdrücklich als
+Demo gekennzeichnet; ein Klick auf Zusammenfassen nutzt trotzdem den echten AI Gateway
+und kann KI-Guthaben verbrauchen. Das Dashboard braucht für KI einen Internetzugang.
+
+#### KI im lokalen Docker-Betrieb
+
+`docker-compose.yml` reicht `LOVABLE_API_KEY` ausschließlich beim Start aus der
+Deployment-Umgebung in den Container durch. Ohne vorhandenen Schlüssel läuft das
+übrige Dashboard unverändert; nur die KI-Zusammenfassung meldet die fehlende Einrichtung.
+Der Schlüssel gehört niemals in Quellcode, Dockerfile, Browser, GitHub-Repository
+oder Protokolle. Lovable verwaltet ihn in der Vorschau automatisch.
+
+**Noch erforderliche lokale Freigabe:** Lovables verwalteter Schlüssel wird nicht
+automatisch auf den Mac oder den selbst gehosteten GitHub-Runner übertragen. Die
+Weitergabe im Compose ist vorbereitet, aber dieses Projekt hat keine sichere
+automatische Schlüsselübertragung zum lokalen Rechner. Daher ist die KI dort erst
+einsatzbereit, wenn eine autorisierte Deployment-Umgebung den Schlüssel bereitstellt.
+Ein `sh update.sh` allein richtet diese Freigabe nicht ein. Keine geheimen Werte in
+Chat oder Repository kopieren. Die lokale KI-Freigabe ist hier nicht verifiziert.
+
+Bei fehlendem KI-Guthaben oder verweigertem Zugriff erscheint eine Fehlermeldung;
+es erfolgen keine automatischen Wiederholungen. Ein erneuter Klick startet eine neue
+Anfrage. Tests ausführen: `bun run test`; echte lokale HA-Daten sind aus der
+Lovable-Vorschau nicht erreichbar.
+
 ## Änderungen übernehmen
 
 Nach jeder Änderung in Lovable auf dem MacBook im Projektordner:

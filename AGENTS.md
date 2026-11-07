@@ -10,7 +10,7 @@
 <!-- LOVABLE:END -->
 
 ## Architecture
-- The browser talks directly to Home Assistant over its WebSocket API (URL + long-lived token in localStorage); no backend, because HA runs on the user's local network.
+- The browser talks directly to Home Assistant over its WebSocket API; only selected activity logs reach the same-origin AI server function, because HA runs on the user's local network and its token must stay on the device.
 - Without a saved connection the dashboard runs on demo data from src/lib/ha-demo.ts so the design is always previewable.
 - Self-hosting via Docker builds with NITRO_PRESET=node-server (see Dockerfile).
 - Use the shared ha-activity classifier for device activity grouping; continuous numeric readings stay separate because their values do not represent on/off states.
@@ -20,3 +20,4 @@
 - Forecasts use Home Assistant weather service responses; daily household consumption uses Recorder daily energy changes in kWh for seven completed local calendar days, so meter resets are handled by Home Assistant and missing statistics are never shown as zero.
 - Consumer rankings use explicitly selected per-device energy meters and one batched Recorder query for fourteen completed local calendar days; rank the latest seven and compare with the preceding seven only when each period is complete, avoiding misleading partial totals or estimates from instantaneous power.
 - Camera motion uses a selected binary sensor or a unique camera-specific motion sensor; on/off means motion/clear, while missing or disconnected data stays unknown; never infer motion from camera streaming or alarm arming.
+- Activity summaries use a request-scoped server-only AI Gateway Responses helper with streamed final text, no automatic retries, bounded selected logs and runtime-only credentials; failed HA history never becomes demo activity or a claim of no changes.

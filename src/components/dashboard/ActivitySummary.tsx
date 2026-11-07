@@ -6,14 +6,15 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import type { HassEntity } from "@/lib/ha";
+import type { HassEntity, ConnStatus } from "@/lib/ha";
 import { buildActivityLog, loadAiSensors, saveAiSensors } from "@/lib/activity-log";
 import { summarizeActivity } from "@/lib/ai-summary.functions";
 
 const DOMAINS = ["binary_sensor", "sensor", "light", "switch", "lock", "cover", "climate", "person", "alarm_control_panel"];
 
-export function ActivitySummary({ states, load }: {
+export function ActivitySummary({ states, load, connection }: {
   states: Record<string, HassEntity>;
+  connection: ConnStatus;
   load: (ids: string[], hours: number) => Promise<Record<string, { t: number; s: string }[]>>;
 }) {
   const summarize = useServerFn(summarizeActivity);
@@ -31,7 +32,7 @@ export function ActivitySummary({ states, load }: {
     setIds(next); saveAiSensors(next);
   };
   const candidates = Object.values(states)
-    .filter((e) => DOMAINS.includes(e.entity_id.split(".")[0]!))
+    .filter((e) => DOMAINS.includes(e.entity_id.split(".")[0] ?? ""))
     .filter((e) => `${e.attributes.friendly_name ?? ""} ${e.entity_id}`.toLowerCase().includes(filter.toLowerCase()))
     .sort((a, b) => String(a.attributes.friendly_name ?? a.entity_id).localeCompare(String(b.attributes.friendly_name ?? b.entity_id)));
 
@@ -40,9 +41,13 @@ export function ActivitySummary({ states, load }: {
     try {
       const h = Number(hours);
       const log = buildActivityLog(await load(ids, h), states);
+      if (!log.length) {
+        setText("Für die ausgewählten Sensoren sind in diesem Zeitraum keine Verlaufsdaten vorhanden.");
+        return;
+      }
       const res = await summarize({ data: { log, hours: h } });
       if (res.error) setError(res.error); else setText(res.text ?? "");
-    } catch { setError("Zusammenfassung derzeit nicht möglich."); }
+    } catch (err) { setError(err instanceof Error ? err.message : "Zusammenfassung derzeit nicht möglich."); }
     finally { setBusy(false); }
   };
 
@@ -57,24 +62,30 @@ export function ActivitySummary({ states, load }: {
           <SelectContent>{["1", "3", "6", "12", "24"].map((h) => <SelectItem key={h} value={h}>Letzte {h} h</SelectItem>)}</SelectContent>
         </Select>
         <Button variant="ghost" size="icon" aria-label="Sensoren auswählen" onClick={() => setOpen(true)}><Settings2 /></Button>
-        <Button onClick={run} disabled={busy || !ids.length}>{busy ? "Fasst zusammen …" : "Zusammenfassen"}</Button>
+        <Button onClick={run} disabled={busy || !ids.length || !["connected", "demo"].includes(connection)}>{busy ? "Fasst zusammen …" : "Zusammenfassen"}</Button>
       </div>
     </div>
     {!ids.length && <p className="text-sm text-muted-foreground">Wähle über das Zahnrad die Sensoren, deren Aktivität zusammengefasst werden soll.</p>}
+    {connection === "demo" && <p className="text-xs text-muted-foreground">Demo · Beispielaktivität, keine echten Hausdaten</p>}
     {error && <p role="alert" className="text-sm text-destructive">{error}</p>}
-    {text && <p className="whitespace-pre-line leading-relaxed">{text}</p>}
+    {text && <p role="status" className="whitespace-pre-line break-words leading-relaxed">{text}</p>}
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogContent className="max-h-[90dvh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle className="font-display text-2xl font-normal">Sensoren für die Zusammenfassung</DialogTitle>
-          <DialogDescription>Nur die Zustandsänderungen dieser Sensoren werden an das KI-Modell geschickt.</DialogDescription>
+          <DialogDescription>Nur Namen, Zustände und Uhrzeiten dieser Sensoren werden für die Zusammenfassung an Lovable AI geschickt. Der Home-Assistant-Token bleibt auf diesem Gerät.</DialogDescription>
         </DialogHeader>
         <Input value={filter} onChange={(e) => setFilter(e.target.value)} placeholder="Suchen …" />
         <div className="max-h-[50dvh] space-y-3 overflow-y-auto">
+          {ids.filter(id => !states[id]).map(id => <label key={id} className="flex items-start gap-3 text-sm">
+            <Checkbox checked onCheckedChange={c => toggle(id, c === true)} aria-label={id} />
+            <span className="min-w-0 break-all">{id}<span className="block text-xs text-muted-foreground">Nicht verfügbar</span></span>
+          </label>)}
           {candidates.map((e) => <label key={e.entity_id} className="flex items-start gap-3 text-sm">
             <Checkbox checked={ids.includes(e.entity_id)} onCheckedChange={(c) => toggle(e.entity_id, c === true)} aria-label={String(e.attributes.friendly_name ?? e.entity_id)} />
             <span className="min-w-0 break-words">{e.attributes.friendly_name ?? e.entity_id}<span className="block break-all text-xs text-muted-foreground">{e.entity_id}</span></span>
           </label>)}
+          {!candidates.length && <p className="text-sm text-muted-foreground">Keine passenden Sensoren gefunden.</p>}
         </div>
       </DialogContent>
     </Dialog>

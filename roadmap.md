@@ -14,3 +14,7 @@
 - [x] Verbrauchsberechnung testen, Anzeige prüfen und Anleitung aktualisieren (13 Tests; Demo, gespeicherte Zählerauswahl, simulierte Recorder-Abfrage und schmaler Bildschirm geprüft; echte lokale Messwerte nicht erreichbar).
 - [x] Kamerascharfschaltung oben anzeigen und Statusquelle wählbar machen (9 Tests; gespeicherte Auswahl und Live-Wechsel mit simulierter HA-Verbindung geprüft; echte lokale Scharfschaltung hier nicht erreichbar).
 - [x] Kameraanzeige oben auf Bewegungssensor umstellen (6 Tests; gespeicherte Auswahl, Bewegung/keine Bewegung und fehlende Werte mit simulierter HA-Verbindung geprüft; echter lokaler Sensor hier nicht erreichbar).
+- [x] KI-Sensorauswahl, gespeicherte Auswahl und Zusammenfassung geprüft: Küchenfenster gefunden, Auswahl nach Neuladen erhalten; echte Gateway-Antwort mit simuliertem HA-Verlauf.
+- [x] Sichere Laufzeit-Weitergabe für Docker vorbereitet und Grenzen der lokalen Einrichtung dokumentiert.
+- [x] KI-Anleitung und Architekturhinweise vervollständigt; alle 61 Tests erfolgreich, schmale Anzeige ohne Überlauf, keine Browserfehler.
+- [ ] KI auf dem lokalen Mac aktivieren und mit echten HA-Daten prüfen: blockiert durch fehlende sichere Übertragung des verwalteten KI-Schlüssels an die lokale Deployment-Umgebung; lokales HA hier nicht erreichbar.

@@ -4,3 +4,6 @@ services:
     ports:
       - "3002:3000"
     restart: unless-stopped
+    environment:
+      # Runtime only: supplied by the deployment environment, never baked into the image.
+      LOVABLE_API_KEY: ${LOVABLE_API_KEY:-}
