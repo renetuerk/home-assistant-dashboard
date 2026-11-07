@@ -129,7 +129,7 @@ function Dashboard() {
     document.addEventListener("visibilitychange", onVis);
     return () => { document.removeEventListener("visibilitychange", onVis); lock?.release?.(); };
   }, []);
-  const { states, areas, registry, status, error, callService, fetchHistory, fetchStateChanges, fetchForecast, fetchDailyUsage, fetchConsumerUsage } = useHomeAssistant(config);
+  const { states, areas, registry, status, error, callService, fetchHistory, fetchStateChanges, fetchForecast, fetchDailyUsage, fetchConsumerUsage, generateAiText } = useHomeAssistant(config);
   const prevStates = useRef<Record<string, HassEntity> | null>(null);
   useEffect(() => {
     // Demo data and half-loaded connections must not trigger alerts.
@@ -211,7 +211,7 @@ function Dashboard() {
       </>
     ),
     devices: <ActivityOverview groups={shown} call={callService} />,
-    summary: <ActivitySummary states={states} load={fetchStateChanges} connection={status} />,
+    summary: <ActivitySummary states={states} load={fetchStateChanges} connection={status} generate={generateAiText} />,
     consumers: <ConsumerRanking ids={config ? config.consumerEntityIds ?? [] : ["sensor.waermepumpe_energie", "sensor.trockner_energie", "sensor.kuehlschrank_energie"]} states={states} price={price} load={fetchConsumerUsage} onSettings={() => setOpen(true)} />,
     "climate-sensors": g.sensors.length > 0 && (
             <Section title="Temperatur & Luftfeuchte">
