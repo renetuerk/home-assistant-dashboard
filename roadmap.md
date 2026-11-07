@@ -14,3 +14,6 @@
 - [x] Verbrauchsberechnung testen, Anzeige prüfen und Anleitung aktualisieren (13 Tests; Demo, gespeicherte Zählerauswahl, simulierte Recorder-Abfrage und schmaler Bildschirm geprüft; echte lokale Messwerte nicht erreichbar).
 - [x] Kamerascharfschaltung oben anzeigen und Statusquelle wählbar machen (9 Tests; gespeicherte Auswahl und Live-Wechsel mit simulierter HA-Verbindung geprüft; echte lokale Scharfschaltung hier nicht erreichbar).
 - [x] Kameraanzeige oben auf Bewegungssensor umstellen (6 Tests; gespeicherte Auswahl, Bewegung/keine Bewegung und fehlende Werte mit simulierter HA-Verbindung geprüft; echter lokaler Sensor hier nicht erreichbar).
+- [ ] KI-Sensorauswahl, gespeicherte Auswahl und Zusammenfassung vollständig prüfen und Fehler beheben.
+- [ ] Sichere KI-Konfiguration für Docker ergänzen und Grenzen der lokalen Einrichtung dokumentieren.
+- [ ] KI-Anleitung und Architekturhinweise vervollständigen; Tests und Anzeige prüfen.
