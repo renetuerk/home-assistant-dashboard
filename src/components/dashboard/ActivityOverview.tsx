@@ -15,7 +15,7 @@ function DeviceGroups({ groups, call }: { groups: Groups; call: Call }) {
     {groups.covers.length > 0 && <Section title="Tore & Rollläden"><div className="grid gap-4 md:grid-cols-2">{groups.covers.map(e => <CoverTile key={e.entity_id} e={e} call={call} />)}</div></Section>}
     {groups.smoke.length > 0 && <Section title="Rauchmelder"><div className="grid gap-2 md:grid-cols-2">{groups.smoke.map(e => <SmokeRow key={e.entity_id} e={e} />)}</div></Section>}
     {groups.security.length > 0 && <Section title="Sicherheit"><div className="grid gap-2 md:grid-cols-2">{groups.security.map(e => <SecurityRow key={e.entity_id} e={e} call={call} />)}</div></Section>}
-    {groups.lights.length > 0 && <Section title="Licht & Schalter"><div className="grid grid-cols-2 gap-4 md:grid-cols-3 xl:grid-cols-4">{groups.lights.map(e => <LightTile key={e.entity_id} e={e} call={call} />)}</div></Section>}
+    {groups.lights.length > 0 && <Section title="Licht & Schalter"><div className="grid grid-cols-2 gap-3 md:grid-cols-4 xl:grid-cols-5">{groups.lights.map(e => <LightTile key={e.entity_id} e={e} call={call} />)}</div></Section>}
     {groups.climate.length > 0 && <Section title="Klima"><div className="grid gap-4 md:grid-cols-2">{groups.climate.map(e => <ClimateTile key={e.entity_id} e={e} call={call} />)}</div></Section>}
   </div>;
 }

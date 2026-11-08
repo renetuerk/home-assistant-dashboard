@@ -34,8 +34,8 @@ export function PvChart({ pvId, powerId, load }: { pvId?: string | undefined; po
   const useLine = use.length > 1 ? path(use) : "";
   const fmt = (t: number) => new Date(t).toLocaleTimeString("de-DE", { hour: "2-digit", minute: "2-digit" });
   return (
-    <div className="tile p-5">
-      <div className="mb-3 flex flex-wrap items-baseline justify-between gap-2 text-sm">
+    <div className="tile p-4">
+      <div className="mb-2 flex flex-wrap items-baseline justify-between gap-2 text-sm">
         <span className="text-muted-foreground">Leistung · 12 Std.</span>
         <span className="flex gap-3 text-xs">
           {pvLine && <span className="flex items-center gap-1.5"><span className="size-2 rounded-full bg-primary" />PV <span className="tabular-nums text-muted-foreground">max. {Math.round(pvMax)} W</span></span>}

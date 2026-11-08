@@ -50,14 +50,14 @@ export function LightTile({ e, call }: { e: HassEntity; call: Call }) {
   const dimmable = domain === "light" && e.attributes.brightness !== undefined;
   const Icon = domain === "light" ? Lightbulb : Power;
   return (
-    <div className={cn("tile flex flex-col justify-between gap-4 p-5 min-h-36", on && "tile-on")}>
+    <div className={cn("tile flex flex-col justify-between gap-2.5 p-3.5 min-h-28", on && "tile-on")}>
       <button
         onClick={() => call(domain, "toggle", { entity_id: e.entity_id })}
         className="flex items-start justify-between text-left"
       >
         <span
           className={cn(
-            "grid size-11 place-items-center rounded-full transition-colors",
+            "grid size-9 place-items-center rounded-full transition-colors",
             on ? "bg-primary text-primary-foreground" : "bg-secondary text-muted-foreground",
           )}
         >
@@ -65,8 +65,8 @@ export function LightTile({ e, call }: { e: HassEntity; call: Call }) {
         </span>
         <span className="text-sm text-muted-foreground">{on ? (dimmable ? `${pct}%` : "An") : "Aus"}</span>
       </button>
-      <div className="flex flex-col gap-3">
-        <span className="font-medium">{name(e)}</span>
+      <div className="flex flex-col gap-2">
+        <span className="text-sm font-medium">{name(e)}</span>
         {dimmable && (
           <Slider
             value={[pct]}
@@ -149,10 +149,10 @@ export function WeatherTile({ e }: { e: HassEntity }) {
   const Icon = weatherIcon[e.state] ?? Cloud;
   const a = e.attributes;
   return (
-    <div className="tile flex items-center gap-5 p-5">
-      <Icon className="size-14 text-primary" strokeWidth={1.25} />
+    <div className="tile flex items-center gap-4 p-4">
+      <Icon className="size-10 text-primary" strokeWidth={1.25} />
       <div className="flex-1">
-        <div className="font-display text-4xl leading-none">
+        <div className="font-display text-3xl leading-none">
           {a.temperature}
           {a.temperature_unit ?? "°C"}
         </div>
@@ -177,23 +177,23 @@ export function EnergyTile({ power, pv, today, battery }: { power: HassEntity | 
   const useW = Number(power?.state ?? 0);
   const ratio = pvW + useW > 0 ? Math.min(100, (pvW / Math.max(useW, 1)) * 100) : 0;
   return (
-    <div className="tile flex flex-col gap-4 p-5">
+    <div className="tile flex flex-col gap-3 p-4">
       {pv && power && (
         <div>
           <div className="flex items-baseline justify-between">
             <span className="text-sm text-muted-foreground">Eigenversorgung</span>
-            <span className="font-display text-3xl">{Math.round(ratio)}%</span>
+            <span className="font-display text-2xl">{Math.round(ratio)}%</span>
           </div>
-          <div className="mt-2 h-2 overflow-hidden rounded-full bg-secondary">
+          <div className="mt-1.5 h-1.5 overflow-hidden rounded-full bg-secondary">
             <div className="h-full rounded-full bg-primary transition-all" style={{ width: `${ratio}%` }} />
           </div>
         </div>
       )}
-      <div className="grid grid-cols-2 gap-3">
+      <div className="grid grid-cols-2 gap-2">
         {rows.map(({ e, icon: Icon, color }) => (
-          <div key={e!.entity_id} className="rounded-xl bg-secondary p-3">
-            <Icon className={cn("mb-2 size-4", color)} />
-            <div className="text-lg font-medium">
+          <div key={e!.entity_id} className="rounded-xl bg-secondary p-2.5">
+            <Icon className={cn("mb-1.5 size-4", color)} />
+            <div className="font-medium">
               {e!.state} <span className="text-sm text-muted-foreground">{e!.attributes.unit_of_measurement}</span>
             </div>
             <div className="text-xs text-muted-foreground">{name(e!)}</div>
@@ -294,17 +294,17 @@ export function EnergyCostTile({
   ].filter((r) => r.e && Number.isFinite(Number(r.e.state)));
   if (rows.length === 0) return null;
   return (
-    <div className="tile flex flex-col gap-3 p-5">
+    <div className="tile flex flex-col gap-2.5 p-4">
       <div className="flex items-center gap-2 text-sm text-muted-foreground">
         <Euro className="size-4 text-primary" />
         Stromkosten · {price.toLocaleString("de-DE", { minimumFractionDigits: 2 })} €/kWh
       </div>
-      <div className="grid grid-cols-2 gap-3">
+      <div className="grid grid-cols-2 gap-2">
         {rows.map(({ label, e }) => {
           const kwh = Number(e!.state);
           return (
-            <div key={label} className="rounded-xl bg-secondary p-3">
-              <div className="text-lg font-medium">{formatEuro(energyCost(kwh, price))}</div>
+            <div key={label} className="rounded-xl bg-secondary p-2.5">
+              <div className="font-medium">{formatEuro(energyCost(kwh, price))}</div>
               <div className="text-xs text-muted-foreground">
                 {label} · {kwh.toLocaleString("de-DE")} kWh
               </div>
