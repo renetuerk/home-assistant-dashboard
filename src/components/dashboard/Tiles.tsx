@@ -166,6 +166,89 @@ export function WeatherTile({ e }: { e: HassEntity }) {
   );
 }
 
+export function EnergyFlowTile({ power, pv }: { power: HassEntity | undefined; pv: HassEntity | undefined }) {
+  const pvW = Math.max(0, Number(pv?.state ?? 0));
+  const useW = Math.max(0, Number(power?.state ?? 0));
+  const feedInW = Math.max(0, pvW - useW);
+  const gridW = Math.max(0, useW - pvW);
+  const ownW = Math.min(pvW, useW);
+  const fmt = (w: number) => `${Math.round(w).toLocaleString("de-DE")} W`;
+  if (!pv && !power) return null;
+  return (
+    <div className="tile flex flex-col gap-3 p-4">
+      <div className="flex items-center justify-between">
+        <span className="text-sm text-muted-foreground">Energiefluss</span>
+        <span className={cn("text-sm font-medium", feedInW > 0 ? "text-primary" : gridW > 0 ? "text-cool" : "text-success")}>
+          {feedInW > 0 ? "Überschuss" : gridW > 0 ? "Netzbezug" : "ausgeglichen"}
+        </span>
+      </div>
+      <div className="grid grid-cols-3 items-center gap-2 text-center">
+        <div className="rounded-xl bg-secondary p-2.5">
+          <Sun className="mx-auto mb-1 size-5 text-primary" />
+          <div className="font-medium">{fmt(pvW)}</div>
+          <div className="text-[11px] text-muted-foreground">PV</div>
+        </div>
+        <div className="text-muted-foreground">
+          <div className="text-lg">→</div>
+          <div className="text-[11px] tabular-nums">{fmt(ownW)}</div>
+          <div className="text-[10px] text-muted-foreground">Eigenverbrauch</div>
+        </div>
+        <div className="rounded-xl bg-secondary p-2.5">
+          <Zap className="mx-auto mb-1 size-5 text-cool" />
+          <div className="font-medium">{fmt(useW)}</div>
+          <div className="text-[11px] text-muted-foreground">Haus</div>
+        </div>
+      </div>
+      <div className="flex items-center justify-between border-t border-border/50 pt-2 text-xs">
+        <span>{feedInW > 0 ? `↗ Einspeisung ${fmt(feedInW)}` : `↙ Netzbezug ${fmt(gridW)}`}</span>
+        <span className="text-muted-foreground">PV → Haus {Math.round(pvW ? ownW / pvW * 100 : 0)}%</span>
+      </div>
+    </div>
+  );
+}
+
+export function EnergySurplusTile({ states }: { states: Record<string, HassEntity> }) {
+  const entries = Object.values(states);
+  const find = (re: RegExp) => entries.find((e) => /^(switch|climate)\./.test(e.entity_id) && re.test(`${e.entity_id} ${e.attributes.friendly_name ?? ""}`));
+  const candidates = [
+    { re: /entfeucht|dehumid/i, label: "Entfeuchter", icon: Droplets },
+    { re: /pool|solarpumpe/i, label: "Poolpumpe", icon: Activity },
+    { re: /infrarot|heizung|heater/i, label: "Infrarotheizung", icon: Thermometer },
+    { re: /geschirrspuel|spülmaschine|dishwasher/i, label: "Geschirrspüler", icon: Activity },
+    { re: /waschmaschine|washing/i, label: "Waschmaschine", icon: Activity },
+    { re: /trockner|dryer/i, label: "Trockner", icon: Activity },
+  ].map((c) => ({ ...c, e: find(c.re) })).filter((x) => x.e);
+  if (!candidates.length) return null;
+  const pv = entries.find((e) => /^(sensor)\./.test(e.entity_id) && /pv|solar|photovoltaik|wechselrichter/i.test(`${e.entity_id} ${e.attributes.friendly_name ?? ""}`) && ["W","kW"].includes(String(e.attributes.unit_of_measurement ?? "")));
+  const use = entries.find((e) => /^(sensor)\./.test(e.entity_id) && /hausverbrauch|haus verbrauch|consumption|netzbezug/i.test(`${e.entity_id} ${e.attributes.friendly_name ?? ""}`) && ["W","kW"].includes(String(e.attributes.unit_of_measurement ?? "")));
+  const pvW = Math.max(0, Number(pv?.state ?? 0));
+  const useW = Math.max(0, Number(use?.state ?? 0));
+  const surplus = Math.max(0, pvW - useW);
+  const active = candidates.filter((x) => ["on","heat","heating","open"].includes(x.e!.state));
+  const recommendation = surplus >= 1000 ? "Guter Zeitpunkt für einen größeren Verbraucher" : surplus >= 450 ? "PV-Überschuss für flexible Verbraucher verfügbar" : "Aktuell wenig PV-Überschuss";
+  return (
+    <div className="tile flex flex-col gap-3 p-4">
+      <div className="flex items-center justify-between">
+        <span className="text-sm text-muted-foreground">PV-Überschuss</span>
+        <span className={cn("font-display text-2xl", surplus > 0 ? "text-primary" : "text-muted-foreground")}>{surplus.toLocaleString("de-DE")} W</span>
+      </div>
+      <div className="flex items-center gap-2 text-xs text-muted-foreground">
+        <Sun className="size-3.5 text-primary" /> {recommendation}
+      </div>
+      <div className="grid grid-cols-2 gap-2">
+        {candidates.map(({ e, label, icon: Icon }) => {
+          const on = ["on","heat","heating","open"].includes(e!.state);
+          return <div key={e!.entity_id} className="flex items-center gap-2 rounded-xl bg-secondary px-2.5 py-2">
+            <Icon className={cn("size-3.5", on ? "text-primary" : "text-muted-foreground")} />
+            <span className="min-w-0 flex-1 truncate text-xs">{label}</span>
+            <span className={cn("text-[10px]", on ? "text-success" : "text-muted-foreground")}>{on ? "AN" : "AUS"}</span>
+          </div>;
+        })}
+      </div>
+    </div>
+  );
+}
+
 export function EnergyTile({ power, pv, today, battery }: { power: HassEntity | undefined; pv: HassEntity | undefined; today: HassEntity | undefined; battery: HassEntity | undefined }) {
   const rows = [
     { e: pv, icon: Sun, color: "text-primary" },
