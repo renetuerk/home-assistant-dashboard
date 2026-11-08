@@ -38,7 +38,7 @@ export function ConsumerRanking({
     const timer = setInterval(run, 15 * 60_000);
     return () => { alive = false; clearInterval(timer); };
   }, [key, load]);
-  const rows = rankConsumers(ids, usage);
+  const rows = rankConsumers(ids, usage).slice(0, 5);
   const max = Math.max(1, ...rows.map((row) => row.kwh ?? 0));
   const fmt = (value: number) => value.toLocaleString("de-DE", { maximumFractionDigits: 1 });
   return <section aria-label="Größte Verbraucher" className="tile min-w-0 p-4">
