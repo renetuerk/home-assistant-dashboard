@@ -30,6 +30,7 @@ import { loadKiosk, registerServiceWorker, saveKiosk, setFullscreen } from "@/li
 import { DropEnd, FavoritePicker, FavoriteTiles, WidgetFrame } from "@/components/dashboard/LayoutEditor";
 import { dashboardDevices } from "@/lib/ha-devices";
 import { CameraMotionIndicator } from "@/components/dashboard/CameraMotionIndicator";
+import { ConnectionStatusIndicator } from "@/components/dashboard/ConnectionStatusIndicator";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -263,6 +264,7 @@ function Dashboard() {
           <span className="font-display text-6xl font-light tabular-nums lg:text-7xl">
             {now?.toLocaleTimeString("de-DE", { hour: "2-digit", minute: "2-digit" }) ?? "--:--"}
           </span>
+          {kiosk && <ConnectionStatusIndicator status={status} />}
           {!kiosk && <>
             <Button variant="ghost" size="icon" aria-label={editing ? "Anordnen beenden" : "Layout anordnen"} title={editing ? "Fertig" : "Layout anordnen"} onClick={() => setEditing((v) => !v)} className="tile size-11">
               {editing ? <Check /> : <LayoutGrid />}
