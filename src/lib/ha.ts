@@ -211,6 +211,32 @@ export function useHomeAssistant(config: HaConfig | null) {
     return dailyUsage(result[entityId] ?? []);
   }, [status, request]);
 
+  const fetchEnergyHistory = useCallback(async (entityIds: string[]): Promise<Record<string, DailyUsage[]>> => {
+    const ids = [...new Set(entityIds)];
+    if (!ids.length) return {};
+    const now = new Date();
+    const { start, end } = energyWindow(now, 7);
+    if (status === "demo") {
+      const demo = [9.8, 11.2, 8.4, 16.7, 10.5, 12.1, 9.3];
+      return Object.fromEntries(ids.map((id, n) => [id, demo.map((v, i) => ({
+        start: new Date(new Date(start).setDate(new Date(start).getDate() + i)).getTime(),
+        kwh: Math.round(v * (id.includes("pv") ? 0.9 : id.includes("grid") ? 0.25 : 1) * 10) / 10,
+      }))]));
+    }
+    if (status !== "connected") throw new Error("Keine Verbindung");
+    const result = await request({
+      type: "recorder/statistics_during_period",
+      start_time: start.toISOString(),
+      end_time: new Date(end.getTime() - 1).toISOString(),
+      statistic_ids: ids,
+      period: "day",
+      types: ["change"],
+      units: { energy: "kWh" },
+    });
+    if (!result) throw new Error("Energiestatistik nicht verfügbar");
+    return Object.fromEntries(ids.map(id => [id, dailyUsage(result[id] ?? [], now, 7)]));
+  }, [status, request]);
+
   const fetchConsumerUsage = useCallback(async (entityIds: string[]): Promise<Record<string, DailyUsage[]>> => {
     const ids = [...new Set(entityIds)];
     if (!ids.length) return {};
@@ -276,7 +302,7 @@ export function useHomeAssistant(config: HaConfig | null) {
     [status],
   );
 
-  return { states, areas, registry, status, error, callService, fetchHistory, fetchStateChanges, fetchForecast, fetchDailyUsage, fetchConsumerUsage, generateAiText };
+  return { states, areas, registry, status, error, callService, fetchHistory, fetchStateChanges, fetchForecast, fetchDailyUsage, fetchEnergyHistory, fetchConsumerUsage, generateAiText };
 }
 
 /** Maps entity_id → area name, using the entity's own area or its device's area. */
