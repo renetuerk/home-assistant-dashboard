@@ -165,7 +165,6 @@ function Dashboard() {
     const pick = (re: RegExp) => usage.find((e) => inName(e, re) && inName(e, useRe)) ?? usage.find((e) => inName(e, re));
     const today = (config?.todayEntity ? states[config.todayEntity] : undefined) ?? pick(/heute|today|tag|daily/i) ?? usage[0];
     const month = (config?.monthEntity ? states[config.monthEntity] : undefined) ?? pick(/monat|month/i);
-    const pvToday = byClass("energy").find((e) => inName(e, pvRe) && inName(e, /heute|today|tag|daily|ertrag|production/i));
     return {
       lights: devices.lights,
       covers: devices.covers,
@@ -176,7 +175,6 @@ function Dashboard() {
       power,
       today,
       month,
-      pvToday,
       battery: find("battery", /batterie|battery|speicher|akku/i),
       persons: d("person").slice(0, 8),
       cameras: devices.cameras,
@@ -242,7 +240,7 @@ function Dashboard() {
             <Section title="Energie">
               <EnergyFlowTile power={g.power} pv={g.pv} />
               <EnergySurplusTile states={states} />
-              <EnergyTile power={g.power} pv={g.pv} today={g.today} pvToday={g.pvToday} battery={g.battery} />
+              <EnergyTile power={g.power} pv={g.pv} today={g.today} battery={g.battery} />
               <EnergyCostTile today={g.today} month={g.month} price={price} />
               <PvChart pvId={g.pv?.entity_id} powerId={g.power?.entity_id} load={fetchHistory} />
                <ConsumptionChart entityId={g.today?.entity_id} load={fetchDailyUsage} />
