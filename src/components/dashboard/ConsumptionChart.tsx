@@ -88,8 +88,17 @@ export function EnergyHistoryChart({
 
   const days = ids.length ? (data[ids[0].id] ?? []).slice(-7) : [];
   const values = ids.flatMap((series) => (data[series.id] ?? []).slice(-7).flatMap((d) => d.kwh == null ? [] : [d.kwh]));
-  const max = Math.max(...values, 1);
+  const rawMax = Math.max(...values, 1);
+  const axisMax = Math.ceil(rawMax / 5) * 5 || 5;
   const fmt = (value: number) => value.toLocaleString("de-DE", { maximumFractionDigits: 1 });
+  const ticks = 4;
+  const plotTop = 10;
+  const plotBottom = 148;
+  const plotHeight = plotBottom - plotTop;
+  const axisX = 24;
+  const plotLeft = 36;
+  const plotRight = 346;
+  const maxForSeries = (id: string) => Math.max(...((data[id] ?? []).slice(-7).flatMap((d) => d.kwh == null ? [] : [d.kwh])), 0);
 
   return <div className="tile min-w-0 p-4">
     <div className="mb-3 flex flex-wrap items-baseline justify-between gap-2">
@@ -99,10 +108,17 @@ export function EnergyHistoryChart({
       </span>
     </div>
     {state ? <p role="status" className="text-sm text-muted-foreground">{state}</p> : <>
-      <svg viewBox="0 0 350 180" className="h-36 w-full" role="img" aria-label="PV-Erzeugung, Netzbezug und Hausverbrauch der letzten sieben abgeschlossenen Tage in Kilowattstunden">
-        <line x1="0" x2="350" y1="148" y2="148" className="stroke-border" />
+      <svg viewBox="0 0 350 180" className="h-40 w-full" role="img" aria-label="PV-Erzeugung, Netzbezug und Hausverbrauch der letzten sieben abgeschlossenen Tage in Kilowattstunden">
+        {Array.from({ length: ticks + 1 }, (_, i) => {
+          const value = axisMax * (1 - i / ticks);
+          const y = plotTop + i * plotHeight / ticks;
+          return <g key={i}>
+            <line x1={plotLeft} x2={plotRight} y1={y} y2={y} className="stroke-border" opacity={i === ticks ? 1 : 0.55} />
+            <text x={axisX} y={y + 3.5} textAnchor="end" className="fill-muted-foreground text-[9px]">{fmt(value)}</text>
+          </g>;
+        })}
         {days.map((day, i) => {
-          const x = i * 50 + 25;
+          const x = plotLeft + (i + 0.5) * ((plotRight - plotLeft) / 7);
           const barWidth = Math.min(10, 30 / ids.length);
           const gap = 2;
           return <g key={day.start}>
@@ -110,20 +126,22 @@ export function EnergyHistoryChart({
             {ids.map((series, j) => {
               const row = (data[series.id] ?? []).find((d) => d.start === day.start);
               const value = row?.kwh;
-              const height = value == null ? 0 : value / max * 112;
+              const height = value == null ? 0 : value / axisMax * plotHeight;
               const bx = x + (j - (ids.length - 1) / 2) * (barWidth + gap);
+              const isHighest = value != null && value === maxForSeries(series.id);
               return <g key={series.id}>
-                {value != null && <rect x={bx - barWidth / 2} y={148 - height} width={barWidth} height={height} rx="2" className={series.className} />}
+                {value != null && <rect x={bx - barWidth / 2} y={plotBottom - height} width={barWidth} height={height} rx="2" className={isHighest ? "fill-primary" : series.className} opacity={isHighest ? 1 : 0.72} />}
+                {value != null && <text x={bx} y={Math.max(plotTop + 9, plotBottom - height - 3)} textAnchor="middle" className="fill-foreground text-[8px]">{fmt(value)}</text>}
                 {value != null && <title>{series.label}: {fmt(value)} kWh</title>}
               </g>;
             })}
-            <text x={x} y="171" textAnchor="middle" className="fill-muted-foreground text-[11px]">
+            <text x={x} y="171" textAnchor="middle" className="fill-muted-foreground text-[10px]">
               {new Date(day.start).toLocaleDateString("de-DE", { weekday: "short" })}
             </text>
           </g>;
         })}
       </svg>
-      <p className="mt-1 text-xs text-muted-foreground">kWh pro Tag</p>
+      <p className="mt-1 text-xs text-muted-foreground">kWh pro Tag · höchster Tageswert je Kategorie hervorgehoben</p>
     </>}
   </div>;
 }
