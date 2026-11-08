@@ -22,23 +22,23 @@ export function WeatherForecast({ entityId, unit, load }: { entityId: string; un
     return () => { alive = false; clearInterval(timer); };
   }, [entityId, mode, load]);
   return <div className="min-w-0">
-    <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
+    <div className="mb-2 flex flex-wrap items-center justify-between gap-1.5">
       <span className="text-sm text-muted-foreground">Vorhersage</span>
-      <div className="flex gap-1" aria-label="Vorhersagezeitraum">
+      <div className="flex gap-0.5" aria-label="Vorhersagezeitraum">
         <Button size="sm" variant={mode === "hourly" ? "secondary" : "ghost"} aria-pressed={mode === "hourly"} onClick={() => setMode("hourly")}>Stunden</Button>
         <Button size="sm" variant={mode === "daily" ? "secondary" : "ghost"} aria-pressed={mode === "daily"} onClick={() => setMode("daily")}>Tage</Button>
       </div>
     </div>
-    {state ? <p role="status" className="py-3 text-sm text-muted-foreground">{state}</p> : <div className="grid grid-cols-3 gap-1.5">
+    {state ? <p role="status" className="py-2 text-sm text-muted-foreground">{state}</p> : <div className={`grid gap-1 ${mode === "daily" ? "grid-cols-5" : "grid-cols-6"}`}>
       {points.map((point) => {
         const Icon = icons[point.condition as keyof typeof icons] ?? Cloud;
         const date = new Date(point.datetime);
-        return <div key={point.datetime} className="rounded-lg border bg-tile px-1.5 py-2 text-center" title={conditions[point.condition] ?? point.condition}>
-          <div className="text-xs text-muted-foreground">{mode === "daily" ? date.toLocaleDateString("de-DE", { weekday: "short", day: "numeric" }) : date.toLocaleTimeString("de-DE", { hour: "2-digit", minute: "2-digit" })}</div>
-          <Icon aria-label={conditions[point.condition] ?? point.condition} className="mx-auto my-1.5 size-5 text-primary" strokeWidth={1.5} />
+        return <div key={point.datetime} className="rounded-lg border bg-tile px-1 py-1.5 text-center" title={conditions[point.condition] ?? point.condition}>
+          <div className="text-[11px] leading-tight text-muted-foreground">{mode === "daily" ? date.toLocaleDateString("de-DE", { weekday: "short", day: "numeric" }) : date.toLocaleTimeString("de-DE", { hour: "2-digit", minute: "2-digit" })}</div>
+          <Icon aria-label={conditions[point.condition] ?? point.condition} className="mx-auto my-1 size-4" strokeWidth={1.5} />
           <div className="text-sm font-medium tabular-nums">{Math.round(point.temperature)}{unit}</div>
-          <div className="min-h-4 text-xs tabular-nums text-muted-foreground">{mode === "daily" && point.templow != null ? `${Math.round(point.templow)}${unit}` : "\u00a0"}</div>
-          {point.precipitation != null && <div className="mt-1 flex items-center justify-center gap-1 text-xs text-cool"><Droplets className="size-3 shrink-0" />{point.precipitation.toLocaleString("de-DE")}</div>}
+          <div className="min-h-3 text-[10px] leading-tight tabular-nums text-muted-foreground">{mode === "daily" && point.templow != null ? `${Math.round(point.templow)}${unit}` : "\u00a0"}</div>
+          {point.precipitation != null && <div className="mt-0.5 flex items-center justify-center gap-0.5 text-[10px] leading-tight text-cool"><Droplets className="size-2.5 shrink-0" />{point.precipitation.toLocaleString("de-DE")}</div>}
         </div>;
       })}
     </div>}
