@@ -17,7 +17,15 @@ describe("consumer ranking display", () => {
       },
     };
 
-    render(<ConsumerRanking ids={["meter"]} states={states} price={0.3} load={load} onSettings={() => {}} />);
+    render(
+      <ConsumerRanking
+        ids={["meter"]}
+        states={states}
+        price={0.3}
+        load={load}
+        onSettings={() => {}}
+      />,
+    );
 
     const ranking = screen.getByRole("region", { name: "Größte Verbraucher" });
     expect(ranking).toHaveClass("p-4");

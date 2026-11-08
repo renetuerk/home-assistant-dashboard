@@ -6,9 +6,18 @@ import type { DailyUsage } from "@/lib/ha-insights";
 import { compareConsumerUsage, rankConsumers } from "@/lib/ha-consumers";
 import { energyCost, formatEuro } from "@/lib/energy-costs";
 
-export function ConsumerRanking({ ids, states, price, load, onSettings }: {
-  ids: string[]; states: Record<string, HassEntity>; price: number;
-  load: (ids: string[]) => Promise<Record<string, DailyUsage[]>>; onSettings: () => void;
+export function ConsumerRanking({
+  ids,
+  states,
+  price,
+  load,
+  onSettings,
+}: {
+  ids: string[];
+  states: Record<string, HassEntity>;
+  price: number;
+  load: (ids: string[]) => Promise<Record<string, DailyUsage[]>>;
+  onSettings: () => void;
 }) {
   const [usage, setUsage] = useState<Record<string, DailyUsage[]>>({});
   const [status, setStatus] = useState("");
