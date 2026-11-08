@@ -9,6 +9,8 @@ import { loadConfig, saveConfig, useHomeAssistant, type HaConfig, type HassEntit
 import { DASHBOARD_LAST_UPDATED } from "@/lib/version";
 import {
   EnergyCostTile,
+  EnergyFlowTile,
+  EnergySurplusTile,
   EnergyTile,
   PersonChip,
   Section,
@@ -236,6 +238,8 @@ function Dashboard() {
           ),
     energy: (g.power || g.pv) && (
             <Section title="Energie">
+              <EnergyFlowTile power={g.power} pv={g.pv} />
+              <EnergySurplusTile states={states} />
               <EnergyTile power={g.power} pv={g.pv} today={g.today} battery={g.battery} />
               <EnergyCostTile today={g.today} month={g.month} price={price} />
               <PvChart pvId={g.pv?.entity_id} powerId={g.power?.entity_id} load={fetchHistory} />
