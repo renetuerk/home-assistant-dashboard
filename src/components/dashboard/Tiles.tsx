@@ -235,10 +235,6 @@ export function EnergySurplusTile({ states }: { states: Record<string, HassEntit
       <div className="flex items-center gap-2 text-xs text-muted-foreground">
         <Sun className="size-3.5 text-primary" /> {recommendation}
       </div>
-      {dailyCoverage != null && pvToday && today && <div className="grid grid-cols-2 gap-2">
-        <div className="rounded-xl bg-secondary p-2.5"><div className="font-medium">{pvKwh.toLocaleString("de-DE", { maximumFractionDigits: 1 })} kWh</div><div className="text-xs text-muted-foreground">PV-Ertrag heute</div></div>
-        <div className="rounded-xl bg-secondary p-2.5"><div className="font-medium">{useKwh.toLocaleString("de-DE", { maximumFractionDigits: 1 })} kWh</div><div className="text-xs text-muted-foreground">Verbrauch heute</div></div>
-      </div>}
       <div className="grid grid-cols-2 gap-2">
         {candidates.map(({ e, label, icon: Icon }) => {
           const on = ["on","heat","heating","open"].includes(e!.state);
@@ -253,26 +249,26 @@ export function EnergySurplusTile({ states }: { states: Record<string, HassEntit
   );
 }
 
-export function EnergyTile({ power, pv, today, pvToday, battery }: { power: HassEntity | undefined; pv: HassEntity | undefined; today: HassEntity | undefined; pvToday: HassEntity | undefined; battery: HassEntity | undefined }) {
+export function EnergyTile({ power, pv, today, battery }: { power: HassEntity | undefined; pv: HassEntity | undefined; today: HassEntity | undefined; battery: HassEntity | undefined }) {
   const rows = [
     { e: pv, icon: Sun, color: "text-primary" },
     { e: power, icon: Zap, color: "text-cool" },
     { e: today, icon: Activity, color: "text-muted-foreground" },
     { e: battery, icon: BatteryMedium, color: "text-success" },
   ].filter((r) => r.e);
-  const pvKwh = Number(pvToday?.state ?? NaN);
-  const useKwh = Number(today?.state ?? NaN);
-  const dailyCoverage = Number.isFinite(pvKwh) && Number.isFinite(useKwh) && useKwh > 0 ? Math.min(100, (pvKwh / useKwh) * 100) : null;
+  const pvW = Number(pv?.state ?? 0);
+  const useW = Number(power?.state ?? 0);
+  const ratio = pvW + useW > 0 ? Math.min(100, (pvW / Math.max(useW, 1)) * 100) : 0;
   return (
     <div className="tile flex flex-col gap-3 p-4">
-      {dailyCoverage != null && pvToday && today && (
+      {pv && power && (
         <div>
           <div className="flex items-baseline justify-between">
-            <span className="text-sm text-muted-foreground">Tagesbilanz · PV-Anteil</span>
-            <span className="font-display text-2xl">{Math.round(dailyCoverage)}%</span>
+            <span className="text-sm text-muted-foreground">Eigenversorgung</span>
+            <span className="font-display text-2xl">{Math.round(ratio)}%</span>
           </div>
           <div className="mt-1.5 h-1.5 overflow-hidden rounded-full bg-secondary">
-            <div className="h-full rounded-full bg-primary transition-all" style={{ width: `${dailyCoverage}%` }} />
+            <div className="h-full rounded-full bg-primary transition-all" style={{ width: `${ratio}%` }} />
           </div>
         </div>
       )}
