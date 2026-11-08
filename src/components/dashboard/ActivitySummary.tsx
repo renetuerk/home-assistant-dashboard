@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
-import { Settings2, Sparkles } from "lucide-react";
+import { Settings2, Sparkles, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
@@ -37,6 +37,8 @@ export function ActivitySummary({ states, load, connection, generate }: {
     .filter((e) => DOMAINS.includes(e.entity_id.split(".")[0] ?? ""))
     .filter((e) => `${e.attributes.friendly_name ?? ""} ${e.entity_id}`.toLowerCase().includes(filter.toLowerCase()))
     .sort((a, b) => String(a.attributes.friendly_name ?? a.entity_id).localeCompare(String(b.attributes.friendly_name ?? b.entity_id)));
+
+  const selected = ids.map((id) => states[id]).filter(Boolean) as HassEntity[];
 
   const run = async () => {
     setBusy(true); setError(""); setText("");
@@ -82,6 +84,22 @@ export function ActivitySummary({ states, load, connection, generate }: {
           <DialogTitle className="font-display text-2xl font-normal">Sensoren für die Zusammenfassung</DialogTitle>
           <DialogDescription>Nur Namen, Zustände und Uhrzeiten dieser Sensoren werden für die Zusammenfassung an die KI geschickt – bevorzugt über den AI-Task deiner Home-Assistant-Integration, sonst über Lovable AI. Der Home-Assistant-Token bleibt auf diesem Gerät.</DialogDescription>
         </DialogHeader>
+        {ids.length > 0 && <div className="space-y-2">
+          <div className="text-sm font-medium">Ausgewählt ({ids.length})</div>
+          <div className="flex flex-wrap gap-1.5">
+            {ids.map((id) => {
+              const entity = states[id];
+              const name = String(entity?.attributes.friendly_name ?? id);
+              return <div key={id} className="flex max-w-full items-center gap-1 rounded-full border bg-muted/40 px-2.5 py-1 text-xs">
+                <span className="min-w-0 truncate" title={name}>{name}</span>
+                <button type="button" className="shrink-0 rounded-full p-0.5 hover:bg-muted" aria-label={`${name} abwählen`} onClick={() => toggle(id, false)}>
+                  <X className="size-3" />
+                </button>
+              </div>;
+            })}
+          </div>
+        </div>}
+        {!ids.length && <p className="text-sm text-muted-foreground">Noch keine Sensoren ausgewählt.</p>}
         <Input value={filter} onChange={(e) => setFilter(e.target.value)} placeholder="Suchen …" />
         <div className="max-h-[50dvh] space-y-3 overflow-y-auto">
           {ids.filter(id => !states[id]).map(id => <label key={id} className="flex items-start gap-3 text-sm">
