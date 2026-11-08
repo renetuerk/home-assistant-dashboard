@@ -49,6 +49,7 @@ type EnergySeries = {
   id: string;
   label: string;
   className: string;
+  dotClass: string;
 };
 
 export function EnergyHistoryChart({
@@ -86,7 +87,8 @@ export function EnergyHistoryChart({
     return () => { alive = false; clearInterval(timer); };
   }, [ids.map((s) => s.id).join("|"), load]);
 
-  const days = ids.length ? (data[ids[0].id] ?? []).slice(-7) : [];
+  const dayStarts = [...new Set(ids.flatMap((series) => (data[series.id] ?? []).slice(-7).map((d) => d.start)))].sort((a, b) => a - b);
+  const days = dayStarts.map((start) => ({ start, kwh: null }));
   const values = ids.flatMap((series) => (data[series.id] ?? []).slice(-7).flatMap((d) => d.kwh == null ? [] : [d.kwh]));
   const rawMax = Math.max(...values, 1);
   const axisMax = Math.ceil(rawMax / 5) * 5 || 5;
@@ -104,7 +106,7 @@ export function EnergyHistoryChart({
     <div className="mb-3 flex flex-wrap items-baseline justify-between gap-2">
       <span className="text-sm">Energieverlauf · 7 Tage</span>
       <span className="flex flex-wrap gap-3 text-xs text-muted-foreground">
-        {ids.map((series) => <span key={series.id} className="flex items-center gap-1.5"><span className={`size-2 rounded-sm ${series.className}`} />{series.label}</span>)}
+        {ids.map((series) => <span key={series.id} className="flex items-center gap-1.5"><span className={`size-2 rounded-full ${series.dotClass}`} />{series.label}</span>)}
       </span>
     </div>
     {state ? <p role="status" className="text-sm text-muted-foreground">{state}</p> : <>
@@ -119,18 +121,19 @@ export function EnergyHistoryChart({
         })}
         {days.map((day, i) => {
           const x = plotLeft + (i + 0.5) * ((plotRight - plotLeft) / 7);
-          const barWidth = Math.min(10, 30 / ids.length);
+          const available = ids.filter((series) => (data[series.id] ?? []).some((d) => d.kwh != null));
+          const barWidth = Math.min(10, 30 / Math.max(available.length, 1));
           const gap = 2;
           return <g key={day.start}>
             <title>{new Date(day.start).toLocaleDateString("de-DE")}</title>
-            {ids.map((series, j) => {
+            {available.map((series, j) => {
               const row = (data[series.id] ?? []).find((d) => d.start === day.start);
               const value = row?.kwh;
               const height = value == null ? 0 : value / axisMax * plotHeight;
               const bx = x + (j - (ids.length - 1) / 2) * (barWidth + gap);
               const isHighest = value != null && value === maxForSeries(series.id);
               return <g key={series.id}>
-                {value != null && <rect x={bx - barWidth / 2} y={plotBottom - height} width={barWidth} height={height} rx="2" className={isHighest ? "fill-primary" : series.className} opacity={isHighest ? 1 : 0.72} />}
+                {value != null && <rect x={bx - barWidth / 2} y={plotBottom - height} width={barWidth} height={height} rx="2" className={series.className} opacity={isHighest ? 1 : 0.72} stroke={isHighest ? "currentColor" : "none"} strokeWidth={isHighest ? 1.5 : 0} />}
                 {value != null && <text x={bx} y={Math.max(plotTop + 9, plotBottom - height - 3)} textAnchor="middle" className="fill-foreground text-[8px]">{fmt(value)}</text>}
                 {value != null && <title>{series.label}: {fmt(value)} kWh</title>}
               </g>;
