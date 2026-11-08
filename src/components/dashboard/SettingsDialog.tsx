@@ -34,6 +34,7 @@ export function SettingsDialog({
   const [token, setToken] = useState(config?.token ?? "");
   const [pvEntity, setPvEntity] = useState(config?.pvEntity ?? "");
   const [powerEntity, setPowerEntity] = useState(config?.powerEntity ?? "");
+  const [gridImportEntity, setGridImportEntity] = useState(config?.gridImportEntity ?? "");
   const [todayEntity, setTodayEntity] = useState(config?.todayEntity ?? "");
   const [monthEntity, setMonthEntity] = useState(config?.monthEntity ?? "");
   const [consumerIds, setConsumerIds] = useState(config?.consumerEntityIds ?? []);
@@ -101,6 +102,10 @@ export function SettingsDialog({
             <Input value={powerEntity} onChange={(e) => setPowerEntity(e.target.value)} placeholder="z. B. sensor.hausverbrauch" />
           </label>
           <label className="flex flex-col gap-1.5 text-sm">
+            Netzbezug-Sensor (kWh)
+            <Input value={gridImportEntity} onChange={(e) => setGridImportEntity(e.target.value)} placeholder="z. B. sensor.netzbezug_energie" />
+          </label>
+          <label className="flex flex-col gap-1.5 text-sm">
             Hausverbrauch heute (kWh, für Stromkosten)
             <Input value={todayEntity} onChange={(e) => setTodayEntity(e.target.value)} placeholder="z. B. sensor.hausverbrauch_heute" />
           </label>
@@ -135,6 +140,7 @@ export function SettingsDialog({
                 token: token.trim(),
                 ...(pvEntity.trim() ? { pvEntity: pvEntity.trim() } : {}),
                 ...(powerEntity.trim() ? { powerEntity: powerEntity.trim() } : {}),
+                ...(gridImportEntity.trim() ? { gridImportEntity: gridImportEntity.trim() } : {}),
                 ...(todayEntity.trim() ? { todayEntity: todayEntity.trim() } : {}),
                 ...(monthEntity.trim() ? { monthEntity: monthEntity.trim() } : {}),
                 ...(cameraMotionEntity.trim() ? { cameraMotionEntity: cameraMotionEntity.trim() } : {}),
