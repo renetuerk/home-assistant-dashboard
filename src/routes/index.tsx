@@ -166,7 +166,7 @@ function Dashboard() {
     const today = (config?.todayEntity ? states[config.todayEntity] : undefined) ?? pick(/heute|today|tag|daily/i) ?? usage[0];
     const month = (config?.monthEntity ? states[config.monthEntity] : undefined) ?? pick(/monat|month/i);
     const energySensors = byClass("energy");
-    const pvEnergy = energySensors.find((e) => inName(e, /pv|solar|photovoltaik|fotovoltaik|erzeugung|produktion|production|wechselrichter|inverter|sma\\b|huawei/i) && !inName(e, /einspeisung|export|bezug|verbrauch|consumption/i));
+    const pvEnergy = energySensors.find((e) => inName(e, /pv|solar|photovoltaik|fotovoltaik|erzeugung|produktion|production|tagesertrag|energy_production|wechselrichter|inverter|sma\\b|huawei/i) && !inName(e, /einspeisung|export|bezug|netzbezug|verbrauch|consumption/i));
     const gridImport = (config?.gridImportEntity ? states[config.gridImportEntity] : undefined) ?? energySensors.find((e) => inName(e, /netzbezug|bezug|grid.*import|import|1\\.8\\.0/i) && !inName(e, /einspeisung|export/i));
     return {
       lights: devices.lights,
@@ -249,9 +249,9 @@ function Dashboard() {
               <EnergyCostTile today={g.today} month={g.month} price={price} />
               <PvChart pvId={g.pv?.entity_id} powerId={g.power?.entity_id} load={fetchHistory} />
                <EnergyHistoryChart ids={[
-                ...(g.pvEnergy ? [{ id: g.pvEnergy.entity_id, label: "PV-Erzeugung", className: "fill-primary" }] : []),
-                ...(g.gridImport ? [{ id: g.gridImport.entity_id, label: "Netzbezug", className: "fill-foreground" }] : []),
-                ...(g.today ? [{ id: g.today.entity_id, label: "Hausverbrauch", className: "fill-cool" }] : []),
+                ...(g.pvEnergy ? [{ id: g.pvEnergy.entity_id, label: "PV-Erzeugung", className: "fill-primary", dotClass: "bg-primary" }] : []),
+                ...(g.gridImport ? [{ id: g.gridImport.entity_id, label: "Netzbezug", className: "fill-foreground", dotClass: "bg-foreground" }] : []),
+                ...(g.today ? [{ id: g.today.entity_id, label: "Hausverbrauch", className: "fill-cool", dotClass: "bg-cool" }] : []),
               ]} load={fetchEnergyHistory} />
             </Section>
           ),
