@@ -21,7 +21,7 @@ import { ActivityOverview } from "@/components/dashboard/ActivityOverview";
 import { SettingsDialog } from "@/components/dashboard/SettingsDialog";
 import { PvChart } from "@/components/dashboard/PvChart";
 import { WeatherForecast } from "@/components/dashboard/WeatherForecast";
-import { EnergyHistoryChart } from "@/components/dashboard/ConsumptionChart";
+import { ConsumptionChart } from "@/components/dashboard/ConsumptionChart";
 import { ConsumerRanking } from "@/components/dashboard/ConsumerRanking";
 import { ActivitySummary } from "@/components/dashboard/ActivitySummary";
 import { NightClock, SmokeAlarmOverlay } from "@/components/dashboard/Overlays";
@@ -132,7 +132,7 @@ function Dashboard() {
     document.addEventListener("visibilitychange", onVis);
     return () => { document.removeEventListener("visibilitychange", onVis); lock?.release?.(); };
   }, []);
-  const { states, areas, registry, status, error, callService, fetchHistory, fetchStateChanges, fetchForecast, fetchDailyUsage, fetchEnergyHistory, fetchConsumerUsage, generateAiText } = useHomeAssistant(config);
+  const { states, areas, registry, status, error, callService, fetchHistory, fetchStateChanges, fetchForecast, fetchDailyUsage, fetchConsumerUsage, generateAiText } = useHomeAssistant(config);
   const prevStates = useRef<Record<string, HassEntity> | null>(null);
   useEffect(() => {
     // Demo data and half-loaded connections must not trigger alerts.
@@ -165,9 +165,6 @@ function Dashboard() {
     const pick = (re: RegExp) => usage.find((e) => inName(e, re) && inName(e, useRe)) ?? usage.find((e) => inName(e, re));
     const today = (config?.todayEntity ? states[config.todayEntity] : undefined) ?? pick(/heute|today|tag|daily/i) ?? usage[0];
     const month = (config?.monthEntity ? states[config.monthEntity] : undefined) ?? pick(/monat|month/i);
-    const energySensors = byClass("energy");
-    const pvEnergy = energySensors.find((e) => inName(e, /pv|solar|photovoltaik|fotovoltaik|erzeugung|produktion|production|tagesertrag|energy_production|wechselrichter|inverter|sma\\b|huawei/i) && !inName(e, /einspeisung|export|bezug|netzbezug|verbrauch|consumption/i));
-    const gridImport = (config?.gridImportEntity ? states[config.gridImportEntity] : undefined) ?? energySensors.find((e) => inName(e, /netzbezug|bezug|grid.*import|import|1\\.8\\.0/i) && !inName(e, /einspeisung|export/i));
     return {
       lights: devices.lights,
       covers: devices.covers,
@@ -178,8 +175,6 @@ function Dashboard() {
       power,
       today,
       month,
-      pvEnergy,
-      gridImport,
       battery: find("battery", /batterie|battery|speicher|akku/i),
       persons: d("person").slice(0, 8),
       cameras: devices.cameras,
@@ -248,11 +243,7 @@ function Dashboard() {
               <EnergyTile power={g.power} pv={g.pv} today={g.today} battery={g.battery} />
               <EnergyCostTile today={g.today} month={g.month} price={price} />
               <PvChart pvId={g.pv?.entity_id} powerId={g.power?.entity_id} load={fetchHistory} />
-               <EnergyHistoryChart ids={[
-                ...(g.pvEnergy ? [{ id: g.pvEnergy.entity_id, label: "PV-Erzeugung", className: "fill-primary", dotClass: "bg-primary" }] : []),
-                ...(g.gridImport ? [{ id: g.gridImport.entity_id, label: "Netzbezug", className: "fill-foreground", dotClass: "bg-foreground" }] : []),
-                ...(g.today ? [{ id: g.today.entity_id, label: "Hausverbrauch", className: "fill-cool", dotClass: "bg-cool" }] : []),
-              ]} load={fetchEnergyHistory} />
+               <ConsumptionChart entityId={g.today?.entity_id} load={fetchDailyUsage} />
             </Section>
           ),
   };
