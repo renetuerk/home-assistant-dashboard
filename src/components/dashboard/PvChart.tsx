@@ -8,7 +8,7 @@ function useHistory(id: string | undefined, load: Load) {
   useEffect(() => {
     if (!id) { setPts([]); return; }
     let alive = true;
-    const run = () => load(id, 24).then((p) => alive && setPts(p)).catch(() => {});
+    const run = () => load(id, 12).then((p) => alive && setPts(p)).catch(() => {});
     run();
     const t = setInterval(run, 5 * 60_000);
     return () => { alive = false; clearInterval(t); };
@@ -16,7 +16,7 @@ function useHistory(id: string | undefined, load: Load) {
   return pts;
 }
 
-/** PV production and house consumption over the last 24 hours in one chart. */
+/** PV production and house consumption over the last 12 hours in one chart. */
 export function PvChart({ pvId, powerId, load }: { pvId?: string | undefined; powerId?: string | undefined; load: Load }) {
   const pv = useHistory(pvId, load);
   const use = useHistory(powerId, load);
@@ -36,13 +36,13 @@ export function PvChart({ pvId, powerId, load }: { pvId?: string | undefined; po
   return (
     <div className="tile p-4">
       <div className="mb-2 flex flex-wrap items-baseline justify-between gap-2 text-sm">
-        <span className="text-muted-foreground">Leistung · 24 Std.</span>
+        <span className="text-muted-foreground">Leistung · 12 Std.</span>
         <span className="flex gap-3 text-xs">
           {pvLine && <span className="flex items-center gap-1.5"><span className="size-2 rounded-full bg-primary" />PV <span className="tabular-nums text-muted-foreground">max. {Math.round(pvMax)} W</span></span>}
           {useLine && <span className="flex items-center gap-1.5"><span className="size-2 rounded-full bg-foreground" />Hausverbrauch <span className="tabular-nums text-muted-foreground">max. {Math.round(useMax)} W</span></span>}
         </span>
       </div>
-      <svg viewBox={`0 0 ${W} ${H}`} className="h-28 w-full" preserveAspectRatio="none" role="img" aria-label="Verlauf von PV-Leistung und Hausverbrauch der letzten 24 Stunden">
+      <svg viewBox={`0 0 ${W} ${H}`} className="h-24 w-full" preserveAspectRatio="none" role="img" aria-label="Verlauf von PV-Leistung und Hausverbrauch">
         {pvLine && <path d={`${pvLine} L${W},${H} L0,${H} Z`} className="fill-primary" opacity={0.15} />}
         {pvLine && <path d={pvLine} fill="none" className="stroke-primary" strokeWidth={2} vectorEffect="non-scaling-stroke" />}
         {useLine && <path d={useLine} fill="none" className="stroke-foreground" strokeWidth={1.5} strokeDasharray="4 3" vectorEffect="non-scaling-stroke" opacity={0.8} />}
