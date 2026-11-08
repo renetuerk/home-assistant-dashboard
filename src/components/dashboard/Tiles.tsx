@@ -235,7 +235,7 @@ export function EnergySurplusTile({ states }: { states: Record<string, HassEntit
       <div className="flex items-center gap-2 text-xs text-muted-foreground">
         <Sun className="size-3.5 text-primary" /> {recommendation}
       </div>
-      <div className="grid grid-cols-2 gap-2">
+      {pvShare != null && pvToday && today && (\n        <div className="rounded-xl border border-primary/20 bg-secondary/60 p-3">\n          <div className="mb-2 flex items-baseline justify-between">\n            <span className="text-sm text-muted-foreground">Tagesbilanz</span>\n            <span className="font-display text-xl">{Math.round(pvShare)}% PV-Anteil</span>\n          </div>\n          <div className="grid grid-cols-2 gap-2 text-sm">\n            <div><span className="font-medium tabular-nums">{pvKwh.toLocaleString("de-DE", { maximumFractionDigits: 1 })} kWh</span><div className="text-xs text-muted-foreground">PV-Ertrag heute</div></div>\n            <div><span className="font-medium tabular-nums">{useKwh.toLocaleString("de-DE", { maximumFractionDigits: 1 })} kWh</span><div className="text-xs text-muted-foreground">Verbrauch heute</div></div>\n          </div>\n        </div>\n      )}\n      <div className="grid grid-cols-2 gap-2">
         {candidates.map(({ e, label, icon: Icon }) => {
           const on = ["on","heat","heating","open"].includes(e!.state);
           return <div key={e!.entity_id} className="flex items-center gap-2 rounded-xl bg-secondary px-2.5 py-2">
@@ -249,7 +249,7 @@ export function EnergySurplusTile({ states }: { states: Record<string, HassEntit
   );
 }
 
-export function EnergyTile({ power, pv, today, battery }: { power: HassEntity | undefined; pv: HassEntity | undefined; today: HassEntity | undefined; battery: HassEntity | undefined }) {
+export function EnergyTile({ power, pv, today, pvToday, battery }: { power: HassEntity | undefined; pv: HassEntity | undefined; today: HassEntity | undefined; pvToday: HassEntity | undefined; battery: HassEntity | undefined }) {
   const rows = [
     { e: pv, icon: Sun, color: "text-primary" },
     { e: power, icon: Zap, color: "text-cool" },
@@ -258,7 +258,7 @@ export function EnergyTile({ power, pv, today, battery }: { power: HassEntity | 
   ].filter((r) => r.e);
   const pvW = Number(pv?.state ?? 0);
   const useW = Number(power?.state ?? 0);
-  const ratio = pvW + useW > 0 ? Math.min(100, (pvW / Math.max(useW, 1)) * 100) : 0;
+  const ratio = pvW + useW > 0 ? Math.min(100, (pvW / Math.max(useW, 1)) * 100) : 0;\n  const pvKwh = Number(pvToday?.state ?? NaN);\n  const useKwh = Number(today?.state ?? NaN);\n  const pvShare = Number.isFinite(pvKwh) && Number.isFinite(useKwh) && useKwh > 0 ? Math.min(100, (pvKwh / useKwh) * 100) : null;
   return (
     <div className="tile flex flex-col gap-3 p-4">
       {pv && power && (
