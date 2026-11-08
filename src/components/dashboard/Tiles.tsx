@@ -260,9 +260,6 @@ export function EnergyTile({ power, pv, today, pvToday, battery }: { power: Hass
     { e: today, icon: Activity, color: "text-muted-foreground" },
     { e: battery, icon: BatteryMedium, color: "text-success" },
   ].filter((r) => r.e);
-  const pvW = Number(pv?.state ?? 0);
-  const useW = Number(power?.state ?? 0);
-  const ratio = pvW + useW > 0 ? Math.min(100, (pvW / Math.max(useW, 1)) * 100) : 0;
   const pvKwh = Number(pvToday?.state ?? NaN);
   const useKwh = Number(today?.state ?? NaN);
   const dailyCoverage = Number.isFinite(pvKwh) && Number.isFinite(useKwh) && useKwh > 0 ? Math.min(100, (pvKwh / useKwh) * 100) : null;
@@ -275,7 +272,7 @@ export function EnergyTile({ power, pv, today, pvToday, battery }: { power: Hass
             <span className="font-display text-2xl">{Math.round(dailyCoverage)}%</span>
           </div>
           <div className="mt-1.5 h-1.5 overflow-hidden rounded-full bg-secondary">
-            <div className="h-full rounded-full bg-primary transition-all" style={{ width: `${ratio}%` }} />
+            <div className="h-full rounded-full bg-primary transition-all" style={{ width: `${dailyCoverage}%` }} />
           </div>
         </div>
       )}
