@@ -6,7 +6,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { loadDashboardStyle, saveDashboardStyle, type DashboardStyle } from "@/lib/dashboard-appearance";
 import { loadEnergyPrice, saveEnergyPrice } from "@/lib/energy-costs";
 import { loadConfig, saveConfig, useHomeAssistant, type HaConfig, type HassEntity } from "@/lib/ha";
-import { DASHBOARD_VERSION } from "@/lib/version";
+import { DASHBOARD_LAST_UPDATED } from "@/lib/version";
 import {
   EnergyCostTile,
   EnergyTile,
@@ -278,13 +278,13 @@ function Dashboard() {
             <span
               className={cn(
                 "size-2 rounded-full",
-                status === "connected" ? "bg-success" : status === "error" ? "bg-destructive" : "bg-primary",
+                status === "connected" ? "bg-success" : "bg-destructive",
               )}
             />
             {statusLabel}
             <Settings className="size-4 text-muted-foreground" />
           </Button>}
-          <span className="text-xs text-muted-foreground tabular-nums">v{DASHBOARD_VERSION}</span>
+          <span className="text-xs text-muted-foreground tabular-nums">Zuletzt aktualisiert: {DASHBOARD_LAST_UPDATED}</span>
         </div>
       </header>
       {notifyMessage && (
