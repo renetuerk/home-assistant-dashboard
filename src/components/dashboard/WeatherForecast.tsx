@@ -29,16 +29,16 @@ export function WeatherForecast({ entityId, unit, load }: { entityId: string; un
         <Button size="sm" variant={mode === "daily" ? "secondary" : "ghost"} aria-pressed={mode === "daily"} onClick={() => setMode("daily")}>Tage</Button>
       </div>
     </div>
-    {state ? <p role="status" className="py-3 text-sm text-muted-foreground">{state}</p> : <div className="grid grid-cols-3 gap-2">
+    {state ? <p role="status" className="py-3 text-sm text-muted-foreground">{state}</p> : <div className="grid grid-cols-3 gap-1.5">
       {points.map((point) => {
         const Icon = icons[point.condition as keyof typeof icons] ?? Cloud;
         const date = new Date(point.datetime);
-        return <div key={point.datetime} className="rounded-lg border bg-tile px-2 py-3 text-center" title={conditions[point.condition] ?? point.condition}>
+        return <div key={point.datetime} className="rounded-lg border bg-tile px-1.5 py-2 text-center" title={conditions[point.condition] ?? point.condition}>
           <div className="text-xs text-muted-foreground">{mode === "daily" ? date.toLocaleDateString("de-DE", { weekday: "short", day: "numeric" }) : date.toLocaleTimeString("de-DE", { hour: "2-digit", minute: "2-digit" })}</div>
-          <Icon aria-label={conditions[point.condition] ?? point.condition} className="mx-auto my-3 size-6 text-primary" strokeWidth={1.5} />
+          <Icon aria-label={conditions[point.condition] ?? point.condition} className="mx-auto my-1.5 size-5 text-primary" strokeWidth={1.5} />
           <div className="text-sm font-medium tabular-nums">{Math.round(point.temperature)}{unit}</div>
-          <div className="mt-1 min-h-4 text-xs tabular-nums text-muted-foreground">{mode === "daily" && point.templow != null ? `${Math.round(point.templow)}${unit}` : "\u00a0"}</div>
-          {point.precipitation != null && <div className="mt-2 flex items-center justify-center gap-1 text-xs text-cool"><Droplets className="size-3 shrink-0" />{point.precipitation.toLocaleString("de-DE")}</div>}
+          <div className="min-h-4 text-xs tabular-nums text-muted-foreground">{mode === "daily" && point.templow != null ? `${Math.round(point.templow)}${unit}` : "\u00a0"}</div>
+          {point.precipitation != null && <div className="mt-1 flex items-center justify-center gap-1 text-xs text-cool"><Droplets className="size-3 shrink-0" />{point.precipitation.toLocaleString("de-DE")}</div>}
         </div>;
       })}
     </div>}

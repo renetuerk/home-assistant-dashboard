@@ -19,13 +19,13 @@ export function ConsumptionChart({ entityId, load }: { entityId: string | undefi
   const max = Math.max(...values, 1);
   const mean = values.length ? values.reduce((sum, value) => sum + value, 0) / values.length : 0;
   const fmt = (value: number) => value.toLocaleString("de-DE", { maximumFractionDigits: 1 });
-  return <div className="tile min-w-0 p-5">
-    <div className="mb-4 flex flex-wrap items-baseline justify-between gap-2">
+  return <div className="tile min-w-0 p-4">
+    <div className="mb-3 flex flex-wrap items-baseline justify-between gap-2">
       <span className="text-sm">Hausverbrauch · 7 Tage</span>
       {!state && <span className="text-xs text-muted-foreground">Ø {fmt(mean)} kWh</span>}
     </div>
     {state ? <p role="status" className="text-sm text-muted-foreground">{state}</p> : <>
-      <svg viewBox="0 0 350 180" className="h-44 w-full" role="img" aria-label="Hausverbrauch der letzten sieben abgeschlossenen Tage in Kilowattstunden">
+      <svg viewBox="0 0 350 180" className="h-36 w-full" role="img" aria-label="Hausverbrauch der letzten sieben abgeschlossenen Tage in Kilowattstunden">
         <line x1="0" x2="350" y1="148" y2="148" className="stroke-border" />
         <line x1="0" x2="350" y1={148 - mean / max * 112} y2={148 - mean / max * 112} className="stroke-muted-foreground" strokeDasharray="3 4" opacity={0.4} />
         {days.map((day, i) => {
