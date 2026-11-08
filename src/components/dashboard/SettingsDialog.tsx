@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
+import { Search } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import type { HaConfig, HassEntity } from "@/lib/ha";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -37,8 +38,14 @@ export function SettingsDialog({
   const [todayEntity, setTodayEntity] = useState(config?.todayEntity ?? "");
   const [monthEntity, setMonthEntity] = useState(config?.monthEntity ?? "");
   const [consumerIds, setConsumerIds] = useState(config?.consumerEntityIds ?? []);
+  const [consumerSearch, setConsumerSearch] = useState("");
   const [cameraMotionEntity, setCameraMotionEntity] = useState(config?.cameraMotionEntity ?? "");
   const meters = consumerMeters(states);
+  const filteredMeters = meters.filter((e) => {
+    const query = consumerSearch.trim().toLocaleLowerCase("de-DE");
+    if (!query) return true;
+    return `${e.attributes.friendly_name ?? ""} ${e.entity_id}`.toLocaleLowerCase("de-DE").includes(query);
+  });
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-h-[90dvh] overflow-y-auto">
@@ -115,8 +122,12 @@ export function SettingsDialog({
         </div>
         <div className="flex flex-col gap-3 border-t border-border pt-4">
           <p className="text-sm">Größte Verbraucher · Zählerauswahl</p>
+          <div className="relative">
+            <Search className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
+            <Input value={consumerSearch} onChange={(e) => setConsumerSearch(e.target.value)} placeholder="Verbraucher suchen …" aria-label="Verbraucher suchen" className="pl-9" />
+          </div>
           <div className="max-h-52 space-y-3 overflow-y-auto">
-            {[...new Set([...meters.map(e => e.entity_id), ...consumerIds])].map(id => <label key={id} className="flex items-start gap-3 text-sm">
+            {[...new Set([...filteredMeters.map(e => e.entity_id), ...consumerIds.filter(id => !consumerSearch.trim())])].map(id => <label key={id} className="flex items-start gap-3 text-sm">
               <Checkbox aria-label={String(states[id]?.attributes.friendly_name ?? id)} checked={consumerIds.includes(id)} onCheckedChange={checked => setConsumerIds(current => checked === true ? [...new Set([...current, id])] : current.filter(value => value !== id))} />
               <span className="min-w-0 break-words">{states[id]?.attributes.friendly_name ?? id}<span className="block break-all text-xs text-muted-foreground">{id}</span></span>
             </label>)}
