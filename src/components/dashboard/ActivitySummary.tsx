@@ -9,6 +9,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import type { HassEntity, ConnStatus } from "@/lib/ha";
 import { buildActivityLog, loadAiSensors, saveAiSensors } from "@/lib/activity-log";
 import { SUMMARY_INSTRUCTIONS } from "@/lib/ai-summary-input";
+import { AI_TASK_MOCK_ENABLED, type AiTaskOutcome } from "@/lib/ai-task-response";
 import { summarizeActivity } from "@/lib/ai-summary.functions";
 
 const DOMAINS = ["binary_sensor", "sensor", "light", "switch", "lock", "cover", "climate", "person", "alarm_control_panel"];
@@ -16,7 +17,7 @@ const DOMAINS = ["binary_sensor", "sensor", "light", "switch", "lock", "cover", 
 export function ActivitySummary({ states, load, connection, generate }: {
   states: Record<string, HassEntity>;
   connection: ConnStatus;
-  generate?: (entityId: string, instructions: string, task: string) => Promise<string>;
+  generate?: (entityId: string, instructions: string, task: string) => Promise<AiTaskOutcome>;
   load: (ids: string[], hours: number) => Promise<Record<string, { t: number; s: string }[]>>;
 }) {
   const summarize = useServerFn(summarizeActivity);
@@ -49,9 +50,10 @@ export function ActivitySummary({ states, load, connection, generate }: {
         setText("Für die ausgewählten Sensoren sind in diesem Zeitraum keine Verlaufsdaten vorhanden.");
         return;
       }
-      const aiTask = connection === "connected" && generate ? Object.keys(states).find((k) => k.startsWith("ai_task.")) : undefined;
+      const aiTask = !generate ? undefined : AI_TASK_MOCK_ENABLED ? "ai_task.mock" : connection === "connected" ? Object.keys(states).find((k) => k.startsWith("ai_task.")) : undefined;
       if (aiTask && generate) {
-        setText(await generate(aiTask, SUMMARY_INSTRUCTIONS, `Verlaufsdaten der letzten ${h} Stunden (Uhrzeit Name: Zustand):\n${log.join("\n")}`));
+        const out = await generate(aiTask, SUMMARY_INSTRUCTIONS, `Verlaufsdaten der letzten ${h} Stunden (Uhrzeit Name: Zustand):\n${log.join("\n")}`);
+        if (out.error) setError(out.error); else setText(out.text ?? "");
         return;
       }
       const res = await summarize({ data: { log, hours: h } });
