@@ -148,7 +148,18 @@ Chat oder Repository kopieren. Die lokale KI-Freigabe ist hier nicht verifiziert
 
 Bei fehlendem KI-Guthaben oder verweigertem Zugriff erscheint eine Fehlermeldung;
 es erfolgen keine automatischen Wiederholungen. Ein erneuter Klick startet eine neue
-Anfrage. Tests ausführen: `bun run test`; echte lokale HA-Daten sind aus der
+Anfrage.
+
+Die Lovable-AI-Serverfunktion begrenzt Anfragen best-effort auf fünf pro Minute
+und IP-Adresse. Das Limit liegt im Arbeitsspeicher des jeweiligen Serverprozesses,
+wird bei Neustarts zurückgesetzt und ist bei mehreren Instanzen nicht gemeinsam;
+es ist daher kein verlässliches Kostenlimit. Die IP-Erkennung setzt vertrauenswürdige
+`X-Real-IP`- oder `X-Forwarded-For`-Header des vorgeschalteten Proxys voraus.
+Für verbindliche Kostenkontrolle zusätzlich Limits beim KI-Anbieter setzen oder
+die Serverfunktion ohne `LOVABLE_API_KEY` betreiben. Der lokale Home-Assistant-AI-Task
+ist von diesem Limit nicht betroffen.
+
+Tests ausführen: `bun run test`; echte lokale HA-Daten sind aus der
 Lovable-Vorschau nicht erreichbar.
 
 ## Änderungen übernehmen
