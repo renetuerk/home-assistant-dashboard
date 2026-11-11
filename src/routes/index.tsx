@@ -23,6 +23,7 @@ import { PvChart } from "@/components/dashboard/PvChart";
 import { WeatherForecast } from "@/components/dashboard/WeatherForecast";
 import { ConsumptionChart } from "@/components/dashboard/ConsumptionChart";
 import { ConsumerRanking } from "@/components/dashboard/ConsumerRanking";
+import { EnergyTips } from "@/components/dashboard/EnergyTips";
 import { ActivitySummary } from "@/components/dashboard/ActivitySummary";
 import { NightClock, SmokeAlarmOverlay } from "@/components/dashboard/Overlays";
 import { cn } from "@/lib/utils";
@@ -236,6 +237,7 @@ function Dashboard() {
                <WeatherForecast entityId={g.weather.entity_id} unit={String(g.weather.attributes.temperature_unit ?? "°C")} load={fetchForecast} />
             </Section>
           ),
+    "energy-tips": <EnergyTips pv={g.pv} power={g.power} today={g.today} states={states} />,
     energy: (g.power || g.pv) && (
             <Section title="Energie">
               <EnergyFlowTile power={g.power} pv={g.pv} />
