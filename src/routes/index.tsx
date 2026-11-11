@@ -23,6 +23,7 @@ import { PvChart } from "@/components/dashboard/PvChart";
 import { WeatherForecast } from "@/components/dashboard/WeatherForecast";
 import { ConsumptionChart } from "@/components/dashboard/ConsumptionChart";
 import { ConsumerRanking } from "@/components/dashboard/ConsumerRanking";
+import { ConsumptionAnomalies } from "@/components/dashboard/ConsumptionAnomalies";
 import { ActivitySummary } from "@/components/dashboard/ActivitySummary";
 import { NightClock, SmokeAlarmOverlay } from "@/components/dashboard/Overlays";
 import { cn } from "@/lib/utils";
@@ -216,6 +217,7 @@ function Dashboard() {
     devices: <ActivityOverview groups={shown} call={callService} />,
     summary: <ActivitySummary states={states} load={fetchStateChanges} connection={status} generate={generateAiText} />,
     consumers: <ConsumerRanking ids={config ? config.consumerEntityIds ?? [] : ["sensor.waermepumpe_energie", "sensor.trockner_energie", "sensor.kuehlschrank_energie"]} states={states} price={price} load={fetchConsumerUsage} onSettings={() => setOpen(true)} />,
+    "consumption-anomalies": <ConsumptionAnomalies ids={config ? config.consumerEntityIds ?? [] : ["sensor.waermepumpe_energie", "sensor.trockner_energie", "sensor.kuehlschrank_energie"]} states={states} load={fetchConsumerUsage} />,
     "climate-sensors": g.sensors.length > 0 && (
             <Section title="Temperatur & Luftfeuchte">
               <div className="grid gap-3 md:grid-cols-2">
