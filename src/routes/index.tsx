@@ -33,6 +33,7 @@ import { DropEnd, FavoritePicker, FavoriteTiles, WidgetFrame } from "@/component
 import { dashboardDevices } from "@/lib/ha-devices";
 import { CameraMotionIndicator } from "@/components/dashboard/CameraMotionIndicator";
 import { ConnectionStatusIndicator } from "@/components/dashboard/ConnectionStatusIndicator";
+import { EnergyCockpit } from "@/components/dashboard/EnergyCockpit";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -238,6 +239,7 @@ function Dashboard() {
           ),
     energy: (g.power || g.pv) && (
             <Section title="Energie">
+              <EnergyCockpit pv={g.pv} power={g.power} today={g.today} />
               <EnergyFlowTile power={g.power} pv={g.pv} />
               <EnergySurplusTile states={states} />
               <EnergyTile power={g.power} pv={g.pv} today={g.today} battery={g.battery} />
