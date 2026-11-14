@@ -330,7 +330,10 @@ function Dashboard() {
                 editing={editing}
                 hidden={layout.hidden.includes(id)}
                 dragging={dragId === id}
+                canMoveLeft={column === "side"}
+                canMoveRight={column === "main"}
                 onShift={(delta) => updateLayout((l) => shiftWidget(l, id, delta))}
+                onMoveColumn={(target) => updateLayout((l) => moveWidget(l, id, target, l[target].length))}
                 onToggleHidden={() => updateLayout((l) => toggleHidden(l, id))}
                 onDragStart={() => setDragId(id)}
                 onDragEnd={() => setDragId(null)}

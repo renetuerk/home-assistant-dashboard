@@ -1,4 +1,4 @@
-import { ArrowDown, ArrowUp, Eye, EyeOff, GripVertical, Star } from "lucide-react";
+import { ArrowDown, ArrowLeft, ArrowRight, ArrowUp, Eye, EyeOff, GripVertical, Star } from "lucide-react";
 import type { ReactNode } from "react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
@@ -9,13 +9,16 @@ import { CoverTile } from "./CoverTile";
 type Call = (domain: string, service: string, data: Record<string, any>) => void;
 
 export function WidgetFrame({
-  label, editing, hidden, dragging, onShift, onToggleHidden, onDragStart, onDragEnd, onDropBefore, children,
+  label, editing, hidden, dragging, canMoveLeft, canMoveRight, onShift, onMoveColumn, onToggleHidden, onDragStart, onDragEnd, onDropBefore, children,
 }: {
   label: string;
   editing: boolean;
   hidden: boolean;
   dragging: boolean;
+  canMoveLeft: boolean;
+  canMoveRight: boolean;
   onShift: (delta: -1 | 1) => void;
+  onMoveColumn: (column: "main" | "side") => void;
   onToggleHidden: () => void;
   onDragStart: () => void;
   onDragEnd: () => void;
@@ -35,6 +38,8 @@ export function WidgetFrame({
       <div className="mb-3 flex items-center gap-1">
         <GripVertical className="size-5 cursor-grab text-muted-foreground" aria-hidden />
         <span className="flex-1 truncate text-sm font-medium">{label}</span>
+        <Button variant="ghost" size="icon" aria-label={`${label} nach links verschieben`} title="Nach links verschieben" disabled={!canMoveLeft} onClick={() => onMoveColumn("main")} className="touch-manipulation"><ArrowLeft /></Button>
+        <Button variant="ghost" size="icon" aria-label={`${label} nach rechts verschieben`} title="Nach rechts verschieben" disabled={!canMoveRight} onClick={() => onMoveColumn("side")} className="touch-manipulation"><ArrowRight /></Button>
         <Button variant="ghost" size="icon" aria-label={`${label} nach oben`} onClick={() => onShift(-1)}><ArrowUp /></Button>
         <Button variant="ghost" size="icon" aria-label={`${label} nach unten`} onClick={() => onShift(1)}><ArrowDown /></Button>
         <Button variant="ghost" size="icon" aria-label={hidden ? `${label} einblenden` : `${label} ausblenden`} onClick={onToggleHidden}>
