@@ -34,6 +34,7 @@ import { DropEnd, FavoritePicker, FavoriteTiles, WidgetFrame } from "@/component
 import { dashboardDevices } from "@/lib/ha-devices";
 import { CameraMotionIndicator } from "@/components/dashboard/CameraMotionIndicator";
 import { ConnectionStatusIndicator } from "@/components/dashboard/ConnectionStatusIndicator";
+import { HouseStatus } from "@/components/dashboard/HouseStatus";
 import { EnergyCockpit } from "@/components/dashboard/EnergyCockpit";
 
 export const Route = createFileRoute("/")({
@@ -238,6 +239,7 @@ function Dashboard() {
                <WeatherForecast entityId={g.weather.entity_id} unit={String(g.weather.attributes.temperature_unit ?? "°C")} load={fetchForecast} />
             </Section>
           ),
+    "house-status": <HouseStatus connection={status} security={g.security} smoke={g.smoke} climate={g.climate} water={Object.values(states).filter((e) => e.entity_id.startsWith("binary_sensor.") && /wasser|leak|leck|water/i.test(e.entity_id + " " + (e.attributes.friendly_name ?? "")))} />,
     "energy-tips": <EnergyTips pv={g.pv} power={g.power} today={g.today} states={states} />,
     energy: (g.power || g.pv) && (
             <Section title="Energie">
