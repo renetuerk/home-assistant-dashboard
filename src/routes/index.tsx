@@ -23,6 +23,7 @@ import { PvChart } from "@/components/dashboard/PvChart";
 import { WeatherForecast } from "@/components/dashboard/WeatherForecast";
 import { ConsumptionChart } from "@/components/dashboard/ConsumptionChart";
 import { ConsumerRanking } from "@/components/dashboard/ConsumerRanking";
+import { EnergyTips } from "@/components/dashboard/EnergyTips";
 import { ActivitySummary } from "@/components/dashboard/ActivitySummary";
 import { NightClock, SmokeAlarmOverlay } from "@/components/dashboard/Overlays";
 import { cn } from "@/lib/utils";
@@ -34,6 +35,7 @@ import { dashboardDevices } from "@/lib/ha-devices";
 import { CameraMotionIndicator } from "@/components/dashboard/CameraMotionIndicator";
 import { ConnectionStatusIndicator } from "@/components/dashboard/ConnectionStatusIndicator";
 import { HouseStatus } from "@/components/dashboard/HouseStatus";
+import { EnergyCockpit } from "@/components/dashboard/EnergyCockpit";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -238,8 +240,10 @@ function Dashboard() {
             </Section>
           ),
     "house-status": <HouseStatus connection={status} security={g.security} smoke={g.smoke} climate={g.climate} water={Object.values(states).filter((e) => e.entity_id.startsWith("binary_sensor.") && /wasser|leak|leck|water/i.test(e.entity_id + " " + (e.attributes.friendly_name ?? "")))} />,
+    "energy-tips": <EnergyTips pv={g.pv} power={g.power} today={g.today} states={states} />,
     energy: (g.power || g.pv) && (
             <Section title="Energie">
+              <EnergyCockpit pv={g.pv} power={g.power} today={g.today} />
               <EnergyFlowTile power={g.power} pv={g.pv} />
               <EnergySurplusTile states={states} />
               <EnergyTile power={g.power} pv={g.pv} today={g.today} battery={g.battery} />
