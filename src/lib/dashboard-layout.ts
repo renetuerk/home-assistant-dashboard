@@ -5,6 +5,7 @@ export const WIDGETS = [
   { id: "devices", label: "Geräte & Aktivität", column: "main" },
   { id: "summary", label: "Aktivitäts-Zusammenfassung", column: "main" },
   { id: "consumers", label: "Verbraucher-Ranking", column: "main" },
+  { id: "consumption-anomalies", label: "Verbrauchsanomalien", column: "main" },
   { id: "climate-sensors", label: "Temperatur & Luftfeuchte", column: "main" },
   { id: "persons", label: "Anwesenheit", column: "side" },
   { id: "house-status", label: "Hausstatus", column: "side" },
