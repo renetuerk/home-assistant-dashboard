@@ -8,8 +8,10 @@ export const WIDGETS = [
   { id: "consumption-anomalies", label: "Verbrauchsanomalien", column: "main" },
   { id: "climate-sensors", label: "Temperatur & Luftfeuchte", column: "main" },
   { id: "persons", label: "Anwesenheit", column: "side" },
+  { id: "house-status", label: "Hausstatus", column: "side" },
   { id: "weather", label: "Wetter", column: "side" },
   { id: "energy", label: "Energie", column: "side" },
+  { id: "energy-tips", label: "Intelligente Energie-Tipps", column: "side" },
 ] as const;
 
 export type WidgetId = (typeof WIDGETS)[number]["id"];
