@@ -162,6 +162,15 @@ ist von diesem Limit nicht betroffen.
 Tests ausführen: `bun run test`; echte lokale HA-Daten sind aus der
 Lovable-Vorschau nicht erreichbar.
 
+### SBOM & Abhängigkeitsüberwachung
+
+GitHub Actions erstellt bei Änderungen auf `main`, bei Pull Requests nach `main`
+und wöchentlich montags um 06:23 UTC eine SPDX-SBOM und scannt sie mit Grype auf
+bekannte Schwachstellen. Funde mit Schweregrad „High“ oder „Critical“ lassen den
+Workflow fehlschlagen. Die SBOM steht als `sbom`-Artefakt im jeweiligen
+Workflow-Lauf bereit; ein Lauf kann außerdem manuell über **Actions** gestartet
+werden.
+
 ## Änderungen übernehmen
 
 Nach jeder Änderung in Lovable auf dem MacBook im Projektordner:
